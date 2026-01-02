@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* SNP Analyzer Color Theme */
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+
+  --color-secondary: #10b981;
+  --color-secondary-light: #34d399;
+  --color-secondary-dark: #059669;
+
+  --color-accent: #8b5cf6;
+  --color-accent-light: #a78bfa;
+  --color-accent-dark: #7c3aed;
+
+  --color-background: #0f172a;
+  --color-background-light: #1e293b;
+  --color-background-lighter: #334155;
+
+  --color-surface: #1e293b;
+  --color-surface-light: #334155;
+
+  /* DNA Base Colors */
+  --color-dna-a: #22c55e;
+  --color-dna-t: #ef4444;
+  --color-dna-g: #eab308;
+  --color-dna-c: #3b82f6;
+
+  /* Clinical Significance Colors */
+  --color-pathogenic: #dc2626;
+  --color-likely-pathogenic: #f97316;
+  --color-uncertain: #eab308;
+  --color-likely-benign: #84cc16;
+  --color-benign: #22c55e;
+}
+
+/* Custom animations */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes dna-helix {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-dna-helix {
+  animation: dna-helix 20s linear infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-background-lighter);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
