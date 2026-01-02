@@ -7,8 +7,6 @@ import "./src/env.js";
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-  // Next.js 16 - React Compiler estable
-  reactCompiler: true,
 
   // Turbopack es el bundler por defecto en Next.js 16
   turbopack: {
