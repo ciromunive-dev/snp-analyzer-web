@@ -2,8 +2,10 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { auth } from "~/server/auth";
 
 export const metadata: Metadata = {
   title: "SNP Analyzer - Analiza variantes geneticas en tu ADN",
@@ -26,13 +28,17 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
+
   return (
     <html lang="es" className={`${geist.variable}`}>
-      <body className="bg-background text-white antialiased">
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+      <body className="bg-background text-text antialiased">
+        <SessionProvider session={session}>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );
