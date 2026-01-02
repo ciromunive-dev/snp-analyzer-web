@@ -7,11 +7,8 @@ import "./src/env.js";
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-
-  // Turbopack es el bundler por defecto en Next.js 16
-  turbopack: {
-    // Configuración adicional si es necesaria
-  },
+  // Explícitamente desactivar React Compiler
+  reactCompiler: false,
 
   // Configuración de imágenes para avatares de OAuth
   images: {
