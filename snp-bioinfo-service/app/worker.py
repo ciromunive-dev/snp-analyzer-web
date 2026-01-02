@@ -1,9 +1,12 @@
 """Worker para procesar jobs de análisis de SNP."""
 
 import asyncio
+import os
 import signal
 import sys
+import threading
 import structlog
+import uvicorn
 
 from upstash_redis import Redis
 
@@ -164,8 +167,27 @@ class Worker:
             await db.update_job_status(job_id, "FAILED", str(e))
 
 
+def run_health_server() -> None:
+    """Ejecuta el servidor FastAPI para health checks en un thread separado."""
+    from app.main import app
+
+    port = int(os.environ.get("PORT", 8000))
+    logger.info("Iniciando servidor de health checks", port=port)
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        log_level="warning",
+    )
+
+
 async def main() -> None:
     """Punto de entrada principal."""
+    # Iniciar servidor HTTP para health checks en thread separado
+    health_thread = threading.Thread(target=run_health_server, daemon=True)
+    health_thread.start()
+
     worker = Worker()
 
     # Manejar señales de terminación
