@@ -16,8 +16,8 @@ biopython>=1.84
 pydantic>=2.10.0
 pydantic-settings>=2.6.0
 
-# Supabase client
-supabase>=2.10.0
+# PostgreSQL async client (Neon)
+asyncpg>=0.30.0
 
 # Variables de entorno
 python-dotenv>=1.0.1

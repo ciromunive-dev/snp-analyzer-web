@@ -18,9 +18,8 @@ class Settings(BaseSettings):
     upstash_redis_rest_url: str = ""
     upstash_redis_rest_token: str = ""
 
-    # Supabase
-    supabase_url: str = ""
-    supabase_service_key: str = ""  # Usar service key, no anon key
+    # PostgreSQL (Neon)
+    database_url: str = ""
 
     # NCBI
     ncbi_email: str = ""  # Requerido por NCBI para usar sus APIs
