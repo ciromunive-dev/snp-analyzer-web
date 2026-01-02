@@ -17,12 +17,19 @@
   --color-accent-light: #a78bfa;
   --color-accent-dark: #7c3aed;
 
-  --color-background: #0f172a;
-  --color-background-light: #1e293b;
-  --color-background-lighter: #334155;
+  --color-background: #f8fafc;
+  --color-background-light: #f1f5f9;
+  --color-background-lighter: #e2e8f0;
 
-  --color-surface: #1e293b;
-  --color-surface-light: #334155;
+  --color-surface: #ffffff;
+  --color-surface-light: #f1f5f9;
+
+  --color-text: #0f172a;
+  --color-text-light: #475569;
+  --color-text-lighter: #64748b;
+
+  --color-border: #e2e8f0;
+  --color-border-light: #cbd5e1;
 
   /* DNA Base Colors */
   --color-dna-a: #22c55e;
@@ -107,11 +114,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: var(--color-background-light);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-background-lighter);
+  background: var(--color-border);
   border-radius: 4px;
 }
 
@@ -122,7 +129,7 @@
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-background-lighter) var(--color-background);
+  scrollbar-color: var(--color-border) var(--color-background-light);
 }
 
 /* Selection color */

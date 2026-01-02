@@ -26,26 +26,26 @@ export default async function Home() {
 
       {/* Navigation */}
       <nav
-        className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-sm"
+        className="fixed top-0 z-50 w-full border-b border-border bg-surface/80 backdrop-blur-sm"
         aria-label="Navegacion principal"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background rounded-lg">
+          <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded-lg">
             <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
-            <span className="text-xl font-bold">SNP Analyzer</span>
+            <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </Link>
           <div className="flex items-center gap-4">
             {session ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="rounded-lg bg-primary px-4 py-2 font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                  className="rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/api/auth/signout"
-                  className="rounded-lg border border-white/20 px-4 py-2 font-semibold transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                  className="rounded-lg border border-border px-4 py-2 font-semibold text-text transition hover:bg-background-lighter focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
                 >
                   Cerrar sesion
                 </Link>
@@ -53,7 +53,7 @@ export default async function Home() {
             ) : (
               <Link
                 href="/api/auth/signin"
-                className="rounded-lg bg-primary px-4 py-2 font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                className="rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
               >
                 Iniciar sesion
               </Link>
@@ -80,7 +80,7 @@ export default async function Home() {
             </span>
           </h1>
 
-          <p className="mb-8 text-xl text-gray-300 sm:text-2xl">
+          <p className="mb-8 text-xl text-text-light sm:text-2xl">
             Analiza variantes geneticas en tu ADN de forma rapida y sencilla.
             Detecta SNPs, alinea con BLAST y obtiene anotaciones clinicas.
           </p>
@@ -88,22 +88,22 @@ export default async function Home() {
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href={session ? "/dashboard" : "/api/auth/signin"}
-              className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+              className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-semibold text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
             >
               {session ? "Ir al Dashboard" : "Comenzar ahora"}
               <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-1" aria-hidden="true" />
             </Link>
             <Link
               href="#features"
-              className="rounded-lg border border-white/20 px-8 py-4 text-lg font-semibold transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+              className="rounded-lg border border-border px-8 py-4 text-lg font-semibold text-text transition hover:bg-background-lighter focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
             >
               Conocer mas
             </Link>
           </div>
 
           {session && (
-            <p className="mt-6 text-gray-300">
-              Bienvenido, <span className="text-white font-medium">{session.user.name}</span>
+            <p className="mt-6 text-text-light">
+              Bienvenido, <span className="text-text font-medium">{session.user.name}</span>
             </p>
           )}
         </div>
@@ -112,7 +112,7 @@ export default async function Home() {
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
           <a
             href="#features"
-            className="block animate-bounce text-gray-500 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-primary rounded-full p-2"
+            className="block animate-bounce text-text-lighter transition hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary rounded-full p-2"
             aria-label="Ver caracteristicas"
           >
             <ChevronDownIcon className="h-8 w-8" />
@@ -123,10 +123,10 @@ export default async function Home() {
       {/* Features Section */}
       <section id="features" className="py-24" aria-labelledby="features-title">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 id="features-title" className="mb-4 text-center text-3xl font-bold sm:text-4xl">
+          <h2 id="features-title" className="mb-4 text-center text-3xl font-bold text-text sm:text-4xl">
             Caracteristicas principales
           </h2>
-          <p className="mb-16 text-center text-gray-300">
+          <p className="mb-16 text-center text-text-light">
             Todo lo que necesitas para analizar variantes geneticas
           </p>
 
@@ -166,7 +166,7 @@ export default async function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="border-y border-white/10 bg-background-light py-16" aria-labelledby="stats-title">
+      <section className="border-y border-border bg-surface py-16" aria-labelledby="stats-title">
         <h2 id="stats-title" className="sr-only">Estadisticas del servicio</h2>
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid gap-8 sm:grid-cols-3">
@@ -180,15 +180,15 @@ export default async function Home() {
       {/* CTA Section */}
       <section className="py-24" aria-labelledby="cta-title">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2 id="cta-title" className="mb-4 text-3xl font-bold sm:text-4xl">
+          <h2 id="cta-title" className="mb-4 text-3xl font-bold text-text sm:text-4xl">
             Listo para analizar tu ADN?
           </h2>
-          <p className="mb-8 text-gray-300">
+          <p className="mb-8 text-text-light">
             Crea una cuenta gratuita y comienza a detectar variantes geneticas en minutos.
           </p>
           <Link
             href={session ? "/dashboard" : "/api/auth/signin"}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-semibold text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
           >
             {session ? "Ir al Dashboard" : "Crear cuenta gratis"}
             <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
@@ -197,14 +197,14 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-8" role="contentinfo">
+      <footer className="border-t border-border py-8" role="contentinfo">
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-center gap-2">
               <DNAIcon className="h-6 w-6 text-primary" aria-hidden="true" />
-              <span className="font-semibold">SNP Analyzer</span>
+              <span className="font-semibold text-text">SNP Analyzer</span>
             </div>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-text-lighter">
               {new Date().getFullYear()} SNP Analyzer. Proyecto de bioinformatica.
             </p>
           </div>
@@ -225,12 +225,12 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <article className="rounded-xl border border-white/10 bg-surface p-6 transition hover:border-primary/50 focus-within:ring-2 focus-within:ring-primary">
+    <article className="rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md focus-within:ring-2 focus-within:ring-primary">
       <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 text-primary" aria-hidden="true">
         {icon}
       </div>
-      <h3 className="mb-2 text-xl font-semibold">{title}</h3>
-      <p className="text-gray-300">{description}</p>
+      <h3 className="mb-2 text-xl font-semibold text-text">{title}</h3>
+      <p className="text-text-light">{description}</p>
     </article>
   );
 }
@@ -239,7 +239,7 @@ function StatCard({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center">
       <p className="text-4xl font-bold text-primary">{value}</p>
-      <p className="text-gray-300">{label}</p>
+      <p className="text-text-light">{label}</p>
     </div>
   );
 }

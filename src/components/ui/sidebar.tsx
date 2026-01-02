@@ -47,7 +47,7 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Mobile menu button */}
       <button
         onClick={toggleSidebar}
-        className="fixed left-4 top-4 z-50 rounded-lg bg-surface p-2 text-white shadow-lg transition hover:bg-surface-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background md:hidden"
+        className="fixed left-4 top-4 z-50 rounded-lg bg-surface p-2 text-text shadow-lg transition hover:bg-surface-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background md:hidden"
         aria-label={isOpen ? "Cerrar menu" : "Abrir menu"}
         aria-expanded={isOpen}
         aria-controls="sidebar"
@@ -58,7 +58,7 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"
           onClick={closeSidebar}
           aria-hidden="true"
         />
@@ -67,16 +67,16 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Sidebar */}
       <aside
         id="sidebar"
-        className={`fixed left-0 top-0 z-40 h-screen w-64 transform border-r border-white/10 bg-surface transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-40 h-screen w-64 transform border-r border-border bg-surface shadow-lg transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0`}
         aria-label="Menu principal"
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex items-center gap-2 border-b border-white/10 p-4">
+          <div className="flex items-center gap-2 border-b border-border p-4">
             <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
-            <span className="text-xl font-bold">SNP Analyzer</span>
+            <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </div>
 
           {/* Navigation */}
@@ -93,7 +93,7 @@ export function Sidebar({ user }: SidebarProps) {
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 font-medium transition focus:outline-none focus:ring-2 focus:ring-primary ${
                     isActive
                       ? "bg-primary text-white"
-                      : "text-gray-400 hover:bg-white/10 hover:text-white"
+                      : "text-text-light hover:bg-background-lighter hover:text-text"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -105,7 +105,7 @@ export function Sidebar({ user }: SidebarProps) {
           </nav>
 
           {/* User section */}
-          <div className="border-t border-white/10 p-4">
+          <div className="border-t border-border p-4">
             <div className="flex items-center gap-3">
               {user.image ? (
                 <img
@@ -123,13 +123,13 @@ export function Sidebar({ user }: SidebarProps) {
                 </div>
               )}
               <div className="flex-1 truncate">
-                <p className="truncate font-medium">{user.name ?? "Usuario"}</p>
-                <p className="truncate text-sm text-gray-400">{user.email}</p>
+                <p className="truncate font-medium text-text">{user.name ?? "Usuario"}</p>
+                <p className="truncate text-sm text-text-lighter">{user.email}</p>
               </div>
             </div>
             <Link
               href="/api/auth/signout"
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 py-2 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2 text-sm font-medium text-text transition hover:bg-background-lighter focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <LogoutIcon className="h-4 w-4" aria-hidden="true" />
               Cerrar sesion

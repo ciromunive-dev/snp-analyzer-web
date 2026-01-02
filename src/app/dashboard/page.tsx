@@ -32,8 +32,8 @@ export default async function DashboardPage() {
       <main className="min-h-screen p-4 pt-16 md:ml-64 md:p-8 md:pt-8">
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-300">
+          <h1 className="text-3xl font-bold text-text">Dashboard</h1>
+          <p className="text-text-light">
             Bienvenido de vuelta, {session.user.name}
           </p>
         </header>
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
 
         {/* Quick Actions */}
         <section aria-labelledby="actions-heading" className="mb-8">
-          <h2 id="actions-heading" className="mb-4 text-xl font-semibold">Acciones rapidas</h2>
+          <h2 id="actions-heading" className="mb-4 text-xl font-semibold text-text">Acciones rapidas</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ActionCard
               href="/dashboard/new"
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
 
         {/* Recent Analyses */}
         <section aria-labelledby="recent-heading">
-          <h2 id="recent-heading" className="mb-4 text-xl font-semibold">Analisis recientes</h2>
+          <h2 id="recent-heading" className="mb-4 text-xl font-semibold text-text">Analisis recientes</h2>
           {recentAnalyses.length === 0 ? (
             <EmptyState />
           ) : (
@@ -107,7 +107,7 @@ export default async function DashboardPage() {
               {recentAnalyses.length > 5 && (
                 <Link
                   href="/dashboard/history"
-                  className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-surface py-3 text-gray-300 transition hover:bg-surface-light hover:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface py-3 text-text-light transition hover:bg-surface-light hover:text-text focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   Ver todos los analisis
                   <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
@@ -134,12 +134,12 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-surface p-6">
+    <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-gray-300">{title}</span>
+        <span className="text-text-light">{title}</span>
         <span className={color} aria-hidden="true">{icon}</span>
       </div>
-      <p className="text-3xl font-bold">{value}</p>
+      <p className="text-3xl font-bold text-text">{value}</p>
     </div>
   );
 }
@@ -158,7 +158,7 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="group rounded-xl border border-white/10 bg-surface p-6 transition hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary"
+      className="group rounded-xl border border-border bg-surface p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
     >
       <div
         className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 text-primary transition group-hover:bg-primary group-hover:text-white"
@@ -166,23 +166,23 @@ function ActionCard({
       >
         {icon}
       </div>
-      <h3 className="mb-1 text-lg font-semibold">{title}</h3>
-      <p className="text-sm text-gray-300">{description}</p>
+      <h3 className="mb-1 text-lg font-semibold text-text">{title}</h3>
+      <p className="text-sm text-text-light">{description}</p>
     </Link>
   );
 }
 
 function EmptyState() {
   return (
-    <div className="rounded-xl border border-white/10 bg-surface p-8 text-center">
-      <DNAIcon className="mx-auto mb-4 h-12 w-12 text-gray-500" aria-hidden="true" />
-      <p className="mb-2 text-lg font-medium">No hay analisis aun</p>
-      <p className="mb-4 text-gray-300">
+    <div className="rounded-xl border border-border bg-surface p-8 text-center shadow-sm">
+      <DNAIcon className="mx-auto mb-4 h-12 w-12 text-text-lighter" aria-hidden="true" />
+      <p className="mb-2 text-lg font-medium text-text">No hay analisis aun</p>
+      <p className="mb-4 text-text-light">
         Comienza subiendo tu primera secuencia FASTA
       </p>
       <Link
         href="/dashboard/new"
-        className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+        className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
       >
         <PlusIcon className="h-5 w-5" aria-hidden="true" />
         Nuevo Analisis
@@ -203,10 +203,10 @@ interface RecentAnalysisCardProps {
 
 function RecentAnalysisCard({ analysis }: RecentAnalysisCardProps) {
   const statusStyles = {
-    PENDING: "text-yellow-400 bg-yellow-500/10",
-    PROCESSING: "text-blue-400 bg-blue-500/10",
-    COMPLETED: "text-green-400 bg-green-500/10",
-    FAILED: "text-red-400 bg-red-500/10",
+    PENDING: "text-yellow-600 bg-yellow-100",
+    PROCESSING: "text-blue-600 bg-blue-100",
+    COMPLETED: "text-green-600 bg-green-100",
+    FAILED: "text-red-600 bg-red-100",
   };
 
   const statusLabels = {
@@ -222,15 +222,15 @@ function RecentAnalysisCard({ analysis }: RecentAnalysisCardProps) {
   return (
     <Link
       href={`/dashboard/analysis/${analysis.id}`}
-      className="flex items-center justify-between rounded-xl border border-white/10 bg-surface p-4 transition hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary"
+      className="flex items-center justify-between rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
     >
       <div className="flex items-center gap-4">
         <div className="rounded-lg bg-primary/10 p-2" aria-hidden="true">
           <DNAIcon className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <p className="font-medium">{analysis.sequenceName}</p>
-          <p className="text-sm text-gray-400">
+          <p className="font-medium text-text">{analysis.sequenceName}</p>
+          <p className="text-sm text-text-lighter">
             {new Date(analysis.createdAt).toLocaleDateString("es-ES", {
               day: "numeric",
               month: "short",
@@ -241,7 +241,7 @@ function RecentAnalysisCard({ analysis }: RecentAnalysisCardProps) {
       </div>
       <div className="flex items-center gap-4">
         {analysis.status === "COMPLETED" && (
-          <span className="text-sm text-gray-300">
+          <span className="text-sm text-text-light">
             {analysis.variantCount} variantes
           </span>
         )}
