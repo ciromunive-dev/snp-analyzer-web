@@ -8,7 +8,7 @@
 # testing
 /coverage
 
-# database
+# database (legacy - using Neon)
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
 db.sqlite
