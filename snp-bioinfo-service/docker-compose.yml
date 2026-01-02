@@ -1,0 +1,39 @@
+services:
+  # Worker para procesar jobs de la cola
+  worker:
+    build: .
+    command: python -m app.worker
+    env_file: .env
+    restart: unless-stopped
+    depends_on:
+      - redis
+    volumes:
+      - ./app:/app/app:ro
+    environment:
+      - UPSTASH_REDIS_REST_URL=redis://redis:6379
+      - DEBUG=true
+
+  # API para health checks (opcional en desarrollo)
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./app:/app/app:ro
+    environment:
+      - DEBUG=true
+
+  # Redis local para desarrollo
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:

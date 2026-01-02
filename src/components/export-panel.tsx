@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import Papa from "papaparse";
 import type { Variant } from "./variant-table";
+import { PDFIcon, CSVIcon, VCFIcon, SpinnerIcon } from "~/components/icons";
 
 interface ExportPanelProps {
   jobId: string;
@@ -277,9 +278,10 @@ function ExportButton({
     <button
       onClick={onClick}
       disabled={loading}
-      className={`flex items-center gap-2 rounded-lg border px-4 py-2 transition disabled:opacity-50 ${colors[format]}`}
+      className={`flex items-center gap-2 rounded-lg border px-4 py-2 transition focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 ${colors[format]}`}
+      aria-label={label}
     >
-      {loading ? <SpinnerIcon className="h-5 w-5 animate-spin" /> : icon}
+      {loading ? <SpinnerIcon className="h-5 w-5 animate-spin" aria-hidden="true" /> : <span aria-hidden="true">{icon}</span>}
       {label}
     </button>
   );
@@ -302,54 +304,4 @@ function formatSignificance(significance: string | null): string {
     unknown: "Desconocido",
   };
   return labels[significance] ?? significance;
-}
-
-// Icons
-function PDFIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8.5 13a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5c1.93 0 3.5-1.07 3.5-2.5S10.43 13 8.5 13 5 14.07 5 15.5 6.57 17.5 8.5 17.5z" />
-    </svg>
-  );
-}
-
-function CSVIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15h2v2H8v-2zm0-3h2v2H8v-2zm4 3h2v2h-2v-2zm0-3h2v2h-2v-2z" />
-    </svg>
-  );
-}
-
-function VCFIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-      />
-    </svg>
-  );
-}
-
-function SpinnerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24">
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
 }

@@ -1,6 +1,12 @@
 "use client";
 
 import type { Variant } from "./variant-table";
+import {
+  CloseIcon,
+  ArrowRightIcon,
+  CopyIcon,
+  ExternalIcon,
+} from "~/components/icons";
 
 interface VariantDetailProps {
   variant: Variant;
@@ -31,9 +37,10 @@ PolyPhen: ${variant.polyphenPrediction ?? "N/A"}
         <h3 className="text-lg font-semibold">Detalle de Variante</h3>
         <button
           onClick={onClose}
-          className="rounded-lg p-2 transition hover:bg-white/10"
+          className="rounded-lg p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-label="Cerrar detalle de variante"
         >
-          <CloseIcon className="h-5 w-5" />
+          <CloseIcon className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -59,7 +66,7 @@ PolyPhen: ${variant.polyphenPrediction ?? "N/A"}
                 {variant.referenceAllele}
               </p>
             </div>
-            <ArrowIcon className="h-6 w-6 text-gray-400" />
+            <ArrowRightIcon className="h-6 w-6 text-gray-400" aria-hidden="true" />
             <div className="rounded-lg bg-background-light p-3 text-center">
               <p className="text-xs text-gray-400">Alternativo</p>
               <p className={`font-mono text-2xl font-bold ${getBaseColor(variant.alternateAllele)}`}>
@@ -180,9 +187,9 @@ PolyPhen: ${variant.polyphenPrediction ?? "N/A"}
         {/* Copy Button */}
         <button
           onClick={copyToClipboard}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 py-3 transition hover:bg-white/10"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 py-3 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <CopyIcon className="h-5 w-5" />
+          <CopyIcon className="h-5 w-5" aria-hidden="true" />
           Copiar Informacion
         </button>
       </div>
@@ -236,7 +243,14 @@ function ScoreRow({ label, score, max }: { label: string; score: number; max: nu
         <span className="text-gray-400">{label}</span>
         <span className="font-mono text-sm">{score.toFixed(3)}</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+      <div
+        className="h-2 w-full overflow-hidden rounded-full bg-white/10"
+        role="meter"
+        aria-valuenow={score}
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-label={`${label}: ${score.toFixed(3)}`}
+      >
         <div className={`h-full ${getColor()}`} style={{ width: `${percentage}%` }} />
       </div>
     </div>
@@ -274,10 +288,10 @@ function ExternalLink({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 rounded-lg border border-white/20 py-2 text-sm transition hover:bg-white/10"
+      className="flex items-center justify-center gap-2 rounded-lg border border-white/20 py-2 text-sm transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
     >
       {label}
-      <ExternalIcon className="h-4 w-4" />
+      <ExternalIcon className="h-4 w-4" aria-hidden="true" />
     </a>
   );
 }
@@ -285,10 +299,10 @@ function ExternalLink({ href, label }: { href: string; label: string }) {
 // Helper functions
 function getBaseColor(base: string): string {
   const colors: Record<string, string> = {
-    A: "text-green-400",
-    T: "text-red-400",
-    G: "text-yellow-400",
-    C: "text-blue-400",
+    A: "text-dna-a",
+    T: "text-dna-t",
+    G: "text-dna-g",
+    C: "text-dna-c",
   };
   return colors[base] ?? "text-gray-400";
 }
@@ -307,11 +321,11 @@ function getConsequenceColor(consequence: string | null): string {
 function getSignificanceColor(significance: string | null): string {
   if (!significance) return "border-gray-500/20 bg-gray-500/10 text-gray-400";
   const colors: Record<string, string> = {
-    pathogenic: "border-red-500/20 bg-red-500/10 text-red-400",
-    likely_pathogenic: "border-orange-500/20 bg-orange-500/10 text-orange-400",
-    uncertain_significance: "border-yellow-500/20 bg-yellow-500/10 text-yellow-400",
-    likely_benign: "border-lime-500/20 bg-lime-500/10 text-lime-400",
-    benign: "border-green-500/20 bg-green-500/10 text-green-400",
+    pathogenic: "border-pathogenic/20 bg-pathogenic/10 text-pathogenic",
+    likely_pathogenic: "border-likely-pathogenic/20 bg-likely-pathogenic/10 text-likely-pathogenic",
+    uncertain_significance: "border-uncertain/20 bg-uncertain/10 text-uncertain",
+    likely_benign: "border-likely-benign/20 bg-likely-benign/10 text-likely-benign",
+    benign: "border-benign/20 bg-benign/10 text-benign",
   };
   return colors[significance] ?? "border-gray-500/20 bg-gray-500/10 text-gray-400";
 }
@@ -326,47 +340,4 @@ function formatSignificance(significance: string | null): string | null {
     benign: "Benigno",
   };
   return labels[significance] ?? significance;
-}
-
-// Icons
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  );
-}
-
-function ArrowIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-    </svg>
-  );
-}
-
-function CopyIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-      />
-    </svg>
-  );
-}
-
-function ExternalIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-      />
-    </svg>
-  );
 }

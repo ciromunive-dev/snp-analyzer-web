@@ -2,6 +2,15 @@
 
 import { useEffect } from "react";
 import { api } from "~/trpc/react";
+import {
+  ClockIcon,
+  SpinnerIcon,
+  CheckIcon,
+  ErrorIcon,
+  EyeIcon,
+  RefreshIcon,
+  DNAIcon,
+} from "~/components/icons";
 
 interface AnalysisStatusProps {
   jobId: string;
@@ -40,7 +49,7 @@ export function AnalysisStatus({
   if (!status) {
     return (
       <div className="flex items-center justify-center p-8">
-        <SpinnerIcon className="h-8 w-8 animate-spin text-primary" />
+        <SpinnerIcon className="h-8 w-8 animate-spin text-primary" aria-label="Cargando estado" />
       </div>
     );
   }
@@ -78,9 +87,9 @@ export function AnalysisStatus({
         {status.status === "COMPLETED" && (
           <button
             onClick={onViewResults}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3 font-semibold transition hover:bg-primary-light"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3 font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
           >
-            <EyeIcon className="h-5 w-5" />
+            <EyeIcon className="h-5 w-5" aria-hidden="true" />
             Ver Resultados
           </button>
         )}
@@ -88,16 +97,16 @@ export function AnalysisStatus({
         {status.status === "FAILED" && (
           <button
             onClick={() => refetch()}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/20 py-3 font-semibold transition hover:bg-white/10"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/20 py-3 font-semibold transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <RefreshIcon className="h-5 w-5" />
+            <RefreshIcon className="h-5 w-5" aria-hidden="true" />
             Reintentar
           </button>
         )}
 
         {(status.status === "PENDING" || status.status === "PROCESSING") && (
           <div className="flex flex-1 items-center justify-center gap-2 py-3 text-gray-400">
-            <SpinnerIcon className="h-5 w-5 animate-spin" />
+            <SpinnerIcon className="h-5 w-5 animate-spin" aria-hidden="true" />
             Procesando...
           </div>
         )}
@@ -155,7 +164,7 @@ function StatusBadge({ status }: { status: JobStatus }) {
 
   return (
     <div className={`flex items-center gap-2 rounded-full border px-3 py-1 ${color}`}>
-      {icon}
+      <span aria-hidden="true">{icon}</span>
       <span className="text-sm font-medium">{label}</span>
     </div>
   );
@@ -177,7 +186,14 @@ function ProgressBar({ status }: { status: JobStatus }) {
   };
 
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+    <div
+      className="h-2 w-full overflow-hidden rounded-full bg-white/10"
+      role="progressbar"
+      aria-valuenow={progress[status]}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`Progreso del analisis: ${progress[status]}%`}
+    >
       <div
         className={`h-full transition-all duration-500 ${color[status]} ${
           status === "PROCESSING" ? "animate-pulse" : ""
@@ -202,8 +218,8 @@ function StatusMessage({
   switch (status) {
     case "PENDING":
       return (
-        <div className="flex items-center gap-3 rounded-lg bg-yellow-500/10 p-4">
-          <ClockIcon className="h-6 w-6 text-yellow-400" />
+        <div className="flex items-center gap-3 rounded-lg bg-yellow-500/10 p-4" role="status">
+          <ClockIcon className="h-6 w-6 text-yellow-400" aria-hidden="true" />
           <div>
             <p className="font-medium text-yellow-400">En cola de procesamiento</p>
             <p className="text-sm text-gray-400">
@@ -217,8 +233,8 @@ function StatusMessage({
 
     case "PROCESSING":
       return (
-        <div className="flex items-center gap-3 rounded-lg bg-blue-500/10 p-4">
-          <DNAIcon className="h-6 w-6 animate-pulse text-blue-400" />
+        <div className="flex items-center gap-3 rounded-lg bg-blue-500/10 p-4" role="status">
+          <DNAIcon className="h-6 w-6 animate-pulse text-blue-400" aria-hidden="true" />
           <div>
             <p className="font-medium text-blue-400">Analizando secuencia</p>
             <p className="text-sm text-gray-400">
@@ -230,8 +246,8 @@ function StatusMessage({
 
     case "COMPLETED":
       return (
-        <div className="flex items-center gap-3 rounded-lg bg-green-500/10 p-4">
-          <CheckIcon className="h-6 w-6 text-green-400" />
+        <div className="flex items-center gap-3 rounded-lg bg-green-500/10 p-4" role="status">
+          <CheckIcon className="h-6 w-6 text-green-400" aria-hidden="true" />
           <div>
             <p className="font-medium text-green-400">Analisis completado</p>
             <p className="text-sm text-gray-400">
@@ -243,8 +259,8 @@ function StatusMessage({
 
     case "FAILED":
       return (
-        <div className="flex items-center gap-3 rounded-lg bg-red-500/10 p-4">
-          <ErrorIcon className="h-6 w-6 text-red-400" />
+        <div className="flex items-center gap-3 rounded-lg bg-red-500/10 p-4" role="alert">
+          <ErrorIcon className="h-6 w-6 text-red-400" aria-hidden="true" />
           <div>
             <p className="font-medium text-red-400">Error en el analisis</p>
             <p className="text-sm text-gray-400">
@@ -254,104 +270,4 @@ function StatusMessage({
         </div>
       );
   }
-}
-
-// Icons
-function ClockIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
-
-function SpinnerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24">
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-function ErrorIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
-
-function EyeIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-      />
-    </svg>
-  );
-}
-
-function RefreshIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      />
-    </svg>
-  );
-}
-
-function DNAIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-      />
-    </svg>
-  );
 }

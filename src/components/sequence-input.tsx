@@ -3,6 +3,13 @@
 import { useCallback, useState, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { api } from "~/trpc/react";
+import {
+  UploadIcon,
+  ErrorIcon,
+  CheckIcon,
+  SpinnerIcon,
+  DNAIcon,
+} from "~/components/icons";
 
 interface SequenceInputProps {
   onSubmitSuccess: (jobId: string) => void;
@@ -127,14 +134,14 @@ export function SequenceInput({ onSubmitSuccess }: SequenceInputProps) {
       {/* Dropzone */}
       <div
         {...getRootProps()}
-        className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition ${
+        className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition focus:outline-none focus:ring-2 focus:ring-primary ${
           isDragActive
             ? "border-primary bg-primary/10"
             : "border-white/20 hover:border-primary/50"
         }`}
       >
-        <input {...getInputProps()} />
-        <UploadIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+        <input {...getInputProps()} aria-label="Subir archivo FASTA" />
+        <UploadIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" aria-hidden="true" />
         {isDragActive ? (
           <p className="text-lg font-medium text-primary">Suelta el archivo aqui...</p>
         ) : (
@@ -151,15 +158,18 @@ export function SequenceInput({ onSubmitSuccess }: SequenceInputProps) {
 
       {/* Separador */}
       <div className="flex items-center gap-4">
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-white/10" aria-hidden="true" />
         <span className="text-sm text-gray-400">o pega directamente</span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-white/10" aria-hidden="true" />
       </div>
 
       {/* Textarea */}
       <div>
-        <label className="mb-2 block text-sm font-medium">Secuencia FASTA</label>
+        <label htmlFor="sequence-input" className="mb-2 block text-sm font-medium">
+          Secuencia FASTA
+        </label>
         <textarea
+          id="sequence-input"
           value={sequence}
           onChange={(e) => {
             setSequence(e.target.value);
@@ -167,7 +177,7 @@ export function SequenceInput({ onSubmitSuccess }: SequenceInputProps) {
             setErrorMessage("");
           }}
           placeholder={`>mi_secuencia\nATGCATGCATGCATGC...`}
-          className="h-48 w-full rounded-lg border border-white/20 bg-background-light p-4 font-mono text-sm placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="h-48 w-full rounded-lg border border-white/20 bg-background-light p-4 font-mono text-sm placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
 
@@ -193,10 +203,10 @@ export function SequenceInput({ onSubmitSuccess }: SequenceInputProps) {
 
           {/* Base counts */}
           <div className="flex flex-wrap gap-3">
-            <BaseCounter base="A" count={baseCounts.A} color="bg-green-500" />
-            <BaseCounter base="T" count={baseCounts.T} color="bg-red-500" />
-            <BaseCounter base="G" count={baseCounts.G} color="bg-yellow-500" />
-            <BaseCounter base="C" count={baseCounts.C} color="bg-blue-500" />
+            <BaseCounter base="A" count={baseCounts.A} color="bg-dna-a" />
+            <BaseCounter base="T" count={baseCounts.T} color="bg-dna-t" />
+            <BaseCounter base="G" count={baseCounts.G} color="bg-dna-g" />
+            <BaseCounter base="C" count={baseCounts.C} color="bg-dna-c" />
             {baseCounts.N > 0 && (
               <BaseCounter base="N" count={baseCounts.N} color="bg-gray-500" />
             )}
@@ -209,37 +219,38 @@ export function SequenceInput({ onSubmitSuccess }: SequenceInputProps) {
 
       {/* Nombre de secuencia */}
       <div>
-        <label className="mb-2 block text-sm font-medium">
+        <label htmlFor="sequence-name" className="mb-2 block text-sm font-medium">
           Nombre del analisis (opcional)
         </label>
         <input
+          id="sequence-name"
           type="text"
           value={sequenceName}
           onChange={(e) => setSequenceName(e.target.value)}
           placeholder={extractedName || "Ej: BRCA1 paciente 001"}
-          className="w-full rounded-lg border border-white/20 bg-background-light px-4 py-3 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full rounded-lg border border-white/20 bg-background-light px-4 py-3 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
           maxLength={255}
         />
       </div>
 
       {/* Validación / Error */}
       {!validation.valid && validation.message && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-3 text-red-400">
-          <ErrorIcon className="h-5 w-5 flex-shrink-0" />
+        <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-3 text-red-400" role="alert">
+          <ErrorIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
           <span className="text-sm">{validation.message}</span>
         </div>
       )}
 
       {state === "error" && errorMessage && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-3 text-red-400">
-          <ErrorIcon className="h-5 w-5 flex-shrink-0" />
+        <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-3 text-red-400" role="alert">
+          <ErrorIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
           <span className="text-sm">{errorMessage}</span>
         </div>
       )}
 
       {state === "success" && (
-        <div className="flex items-center gap-2 rounded-lg bg-green-500/10 p-3 text-green-400">
-          <CheckIcon className="h-5 w-5 flex-shrink-0" />
+        <div className="flex items-center gap-2 rounded-lg bg-green-500/10 p-3 text-green-400" role="status">
+          <CheckIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
           <span className="text-sm">Analisis enviado correctamente</span>
         </div>
       )}
@@ -248,16 +259,16 @@ export function SequenceInput({ onSubmitSuccess }: SequenceInputProps) {
       <button
         onClick={handleSubmit}
         disabled={!validation.valid || state === "submitting"}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-4 text-lg font-semibold transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-4 text-lg font-semibold transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
       >
         {state === "submitting" ? (
           <>
-            <SpinnerIcon className="h-5 w-5 animate-spin" />
+            <SpinnerIcon className="h-5 w-5 animate-spin" aria-hidden="true" />
             Enviando...
           </>
         ) : (
           <>
-            <DNAIcon className="h-5 w-5" />
+            <DNAIcon className="h-5 w-5" aria-hidden="true" />
             Analizar Secuencia
           </>
         )}
@@ -278,77 +289,9 @@ function BaseCounter({
 }) {
   return (
     <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-1">
-      <span className={`h-3 w-3 rounded-full ${color}`} />
+      <span className={`h-3 w-3 rounded-full ${color}`} aria-hidden="true" />
       <span className="font-mono text-sm font-medium">{base}</span>
       <span className="text-sm text-gray-400">{count.toLocaleString()}</span>
     </div>
-  );
-}
-
-// Icons
-function UploadIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-      />
-    </svg>
-  );
-}
-
-function ErrorIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-function SpinnerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24">
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
-function DNAIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-      />
-    </svg>
   );
 }

@@ -1,6 +1,34 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
+// Campos de variante a seleccionar (minimización de datos)
+const variantSelect = {
+  id: true,
+  chromosome: true,
+  position: true,
+  referenceAllele: true,
+  alternateAllele: true,
+  rsId: true,
+  hgvsNotation: true,
+  geneSymbol: true,
+  variantType: true,
+  consequence: true,
+  clinicalSignificance: true,
+  populationFrequency: true,
+  revelScore: true,
+  caddScore: true,
+  siftPrediction: true,
+  polyphenPrediction: true,
+  createdAt: true,
+} as const;
+
+// Campos del job relacionado (nunca incluir sequence)
+const jobSelectMinimal = {
+  id: true,
+  sequenceName: true,
+  createdAt: true,
+} as const;
+
 export const variantRouter = createTRPCRouter({
   /**
    * Buscar variante por rsID en los análisis del usuario
@@ -19,13 +47,10 @@ export const variantRouter = createTRPCRouter({
           rsId: input.rsId,
           job: { userId: ctx.session.user.id },
         },
-        include: {
+        select: {
+          ...variantSelect,
           job: {
-            select: {
-              id: true,
-              sequenceName: true,
-              createdAt: true,
-            },
+            select: jobSelectMinimal,
           },
         },
         orderBy: { createdAt: "desc" },
@@ -46,13 +71,10 @@ export const variantRouter = createTRPCRouter({
           id: input.variantId,
           job: { userId: ctx.session.user.id },
         },
-        include: {
+        select: {
+          ...variantSelect,
           job: {
-            select: {
-              id: true,
-              sequenceName: true,
-              createdAt: true,
-            },
+            select: jobSelectMinimal,
           },
         },
       });
@@ -178,7 +200,8 @@ export const variantRouter = createTRPCRouter({
           ...(input.minPosition && { position: { gte: input.minPosition } }),
           ...(input.maxPosition && { position: { lte: input.maxPosition } }),
         },
-        include: {
+        select: {
+          ...variantSelect,
           job: {
             select: {
               id: true,
@@ -237,16 +260,16 @@ export const variantRouter = createTRPCRouter({
     return {
       total,
       bySignificance: Object.fromEntries(
-        bySignificance.map((s) => [s.clinicalSignificance ?? "unknown", s._count])
+        bySignificance.map((s: typeof bySignificance[number]) => [s.clinicalSignificance ?? "unknown", s._count])
       ),
       byConsequence: Object.fromEntries(
-        byConsequence.map((s) => [s.consequence ?? "unknown", s._count])
+        byConsequence.map((s: typeof byConsequence[number]) => [s.consequence ?? "unknown", s._count])
       ),
       byType: Object.fromEntries(
-        byType.map((s) => [s.variantType, s._count])
+        byType.map((s: typeof byType[number]) => [s.variantType, s._count])
       ),
       byChromosome: Object.fromEntries(
-        byChromosome.map((s) => [s.chromosome, s._count])
+        byChromosome.map((s: typeof byChromosome[number]) => [s.chromosome, s._count])
       ),
     };
   }),

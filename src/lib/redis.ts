@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 import { env } from "~/env";
 
 // Cliente Redis singleton
@@ -57,4 +58,50 @@ export async function getJobPosition(jobId: string): Promise<number | null> {
   const queue = await redis.lrange(QUEUE_NAME, 0, -1);
   const position = queue.indexOf(jobId);
   return position === -1 ? null : queue.length - position;
+}
+
+// ============================================
+// Rate Limiting
+// ============================================
+
+/**
+ * Rate limiter para análisis de secuencias
+ * 10 requests por minuto por usuario
+ */
+export const analysisRatelimit = redis
+  ? new Ratelimit({
+      redis: redis,
+      limiter: Ratelimit.slidingWindow(10, "1m"),
+      prefix: "ratelimit:analysis",
+    })
+  : null;
+
+/**
+ * Rate limiter general para API
+ * 100 requests por minuto por usuario
+ */
+export const apiRatelimit = redis
+  ? new Ratelimit({
+      redis: redis,
+      limiter: Ratelimit.slidingWindow(100, "1m"),
+      prefix: "ratelimit:api",
+    })
+  : null;
+
+/**
+ * Verifica rate limit y lanza error si se excede
+ */
+export async function checkRateLimit(
+  identifier: string,
+  limiter: Ratelimit | null = apiRatelimit
+): Promise<{ success: boolean; remaining: number }> {
+  if (!limiter) {
+    return { success: true, remaining: -1 };
+  }
+
+  const result = await limiter.limit(identifier);
+  return {
+    success: result.success,
+    remaining: result.remaining,
+  };
 }
