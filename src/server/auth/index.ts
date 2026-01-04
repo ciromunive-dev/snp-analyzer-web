@@ -1,10 +1,14 @@
 import NextAuth from "next-auth";
 import { cache } from "react";
+import type { Session } from "next-auth";
 
-import { authConfig } from "./config";
+import { authConfig, DEMO_SESSION } from "./config";
 
-const { auth: uncachedAuth, handlers, signIn, signOut } = NextAuth(authConfig);
+const { handlers, signIn, signOut } = NextAuth(authConfig);
 
-const auth = cache(uncachedAuth);
+// Demo mode: always return demo session
+const auth = cache(async (): Promise<Session> => {
+  return DEMO_SESSION as Session;
+});
 
 export { auth, handlers, signIn, signOut };

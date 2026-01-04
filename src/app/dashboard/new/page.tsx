@@ -3,16 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { Sidebar } from "~/components/ui/sidebar";
 import { SequenceInput } from "~/components/sequence-input";
 import { AnalysisStatus } from "~/components/analysis-status";
-import { ArrowLeftIcon, PlusIcon, SpinnerIcon } from "~/components/icons";
+import { ArrowLeftIcon, PlusIcon } from "~/components/icons";
+import { DEMO_USER } from "~/server/auth/config";
 
 export default function NewAnalysisPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+
+  // Demo mode: use demo user
+  const session = { user: DEMO_USER };
 
   const handleSubmitSuccess = (jobId: string) => {
     setCurrentJobId(jobId);
@@ -31,24 +33,6 @@ export default function NewAnalysisPage() {
   const handleNewAnalysis = () => {
     setCurrentJobId(null);
   };
-
-  // Loading state
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <SpinnerIcon className="mx-auto mb-4 h-12 w-12 animate-spin text-primary" />
-          <p className="text-text-light">Cargando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect if not authenticated
-  if (!session) {
-    router.push("/api/auth/signin");
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background">
