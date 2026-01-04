@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 import { cache } from "react";
 import type { Session } from "next-auth";
 
-import { authConfig, DEMO_SESSION } from "./config";
+import { authConfig } from "./config";
+import { DEMO_SESSION } from "~/lib/constants";
 
 const { handlers, signIn, signOut } = NextAuth(authConfig);
 
