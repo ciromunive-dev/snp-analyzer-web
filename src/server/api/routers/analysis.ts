@@ -4,7 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { enqueueJob, getQueueLength, getJobPosition, checkRateLimit, analysisRatelimit } from "~/lib/redis";
 
 // Límite diario de análisis por usuario
-const DAILY_ANALYSIS_LIMIT = 10;
+const DAILY_ANALYSIS_LIMIT = 50;
 
 // Schema para validar secuencias de ADN en formato FASTA
 const dnaSequenceSchema = z
