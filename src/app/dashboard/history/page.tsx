@@ -1,19 +1,20 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "~/server/auth";
 import { Sidebar } from "~/components/ui/sidebar";
-import { api } from "~/trpc/server";
 import { DNAIcon, ClockIcon, CheckIcon, ErrorIcon, ArrowRightIcon } from "~/components/icons";
 
 export default async function HistoryPage() {
   const session = await auth();
 
-  if (!session) {
-    redirect("/api/auth/signin");
-  }
-
-  const historyData = await api.analysis.history({});
-  const analyses = historyData.jobs;
+  // Demo mode: empty history
+  const analyses: Array<{
+    id: string;
+    sequenceName: string;
+    status: string;
+    createdAt: Date;
+    completedAt: Date | null;
+    variantCount: number;
+  }> = [];
 
   return (
     <div className="min-h-screen bg-background">

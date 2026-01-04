@@ -1,17 +1,19 @@
-import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
 import { Sidebar } from "~/components/ui/sidebar";
-import { api } from "~/trpc/server";
 import { ChartIcon, DNAIcon, CheckIcon, ClockIcon } from "~/components/icons";
 
 export default async function StatsPage() {
   const session = await auth();
 
-  if (!session) {
-    redirect("/api/auth/signin");
-  }
-
-  const stats = await api.analysis.stats();
+  // Demo mode: empty stats
+  const stats = {
+    totalAnalyses: 0,
+    processingAnalyses: 0,
+    completedAnalyses: 0,
+    totalVariants: 0,
+    significanceDistribution: [] as Array<{ significance: string | null; _count: number }>,
+    consequenceDistribution: [] as Array<{ consequence: string | null; _count: number }>,
+  };
 
   return (
     <div className="min-h-screen bg-background">

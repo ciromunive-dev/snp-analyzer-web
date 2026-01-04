@@ -1,8 +1,6 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "~/server/auth";
 import { Sidebar } from "~/components/ui/sidebar";
-import { api } from "~/trpc/server";
 import {
   DNAIcon,
   PlusIcon,
@@ -15,14 +13,20 @@ import {
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session) {
-    redirect("/api/auth/signin");
-  }
-
-  // Fetch real stats
-  const stats = await api.analysis.stats();
-  const historyData = await api.analysis.history({});
-  const recentAnalyses = historyData.jobs;
+  // Demo mode: use placeholder stats
+  const stats = {
+    totalAnalyses: 0,
+    processingAnalyses: 0,
+    completedAnalyses: 0,
+    totalVariants: 0,
+  };
+  const recentAnalyses: Array<{
+    id: string;
+    sequenceName: string;
+    status: string;
+    createdAt: Date;
+    variantCount: number;
+  }> = [];
 
   return (
     <div className="min-h-screen bg-background">
