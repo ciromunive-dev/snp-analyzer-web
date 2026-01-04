@@ -7,7 +7,7 @@ import { Sidebar } from "~/components/ui/sidebar";
 import { SequenceInput } from "~/components/sequence-input";
 import { AnalysisStatus } from "~/components/analysis-status";
 import { ArrowLeftIcon, PlusIcon } from "~/components/icons";
-import { DEMO_USER } from "~/server/auth/config";
+import { DEMO_USER } from "~/lib/constants";
 
 export default function NewAnalysisPage() {
   const router = useRouter();

@@ -18,7 +18,7 @@ import {
   SpinnerIcon,
   ErrorIcon,
 } from "~/components/icons";
-import { DEMO_USER } from "~/server/auth/config";
+import { DEMO_USER } from "~/lib/constants";
 
 interface AnalysisPageProps {
   params: Promise<{ id: string }>;
