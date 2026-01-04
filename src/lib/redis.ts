@@ -1,17 +1,16 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
-import { env } from "~/env";
 
 // Cliente Redis singleton
 const createRedisClient = () => {
-  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
     console.warn("Redis not configured - queue operations will be no-op");
     return null;
   }
 
   return new Redis({
-    url: env.UPSTASH_REDIS_REST_URL,
-    token: env.UPSTASH_REDIS_REST_TOKEN,
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
   });
 };
 
@@ -21,7 +20,7 @@ const globalForRedis = globalThis as unknown as {
 
 export const redis = globalForRedis.redis ?? createRedisClient();
 
-if (env.NODE_ENV !== "production") globalForRedis.redis = redis;
+if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis;
 
 // Queue name for SNP analysis jobs
 const QUEUE_NAME = "snp-analysis-queue";
