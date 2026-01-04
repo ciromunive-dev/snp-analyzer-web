@@ -66,7 +66,7 @@ async def readiness_check() -> dict[str, str | bool]:
     """
     checks: dict[str, bool] = {
         "redis_configured": bool(settings.upstash_redis_rest_url),
-        "supabase_configured": bool(settings.supabase_url),
+        "database_configured": bool(settings.database_url),
         "ncbi_configured": bool(settings.ncbi_email),
     }
 
