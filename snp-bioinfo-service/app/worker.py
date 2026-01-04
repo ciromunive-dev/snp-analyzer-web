@@ -1,6 +1,7 @@
 """Worker para procesar jobs de análisis de SNP."""
 
 import asyncio
+import logging
 import os
 import signal
 import sys
@@ -11,6 +12,18 @@ import uvicorn
 from upstash_redis import Redis
 
 from app.config import settings
+
+# Configurar logging básico de Python primero
+logging.basicConfig(
+    format="%(message)s",
+    stream=sys.stdout,
+    level=logging.INFO,
+)
+
+# Log inmediato al importar módulo
+print(f"[WORKER] Iniciando worker... DATABASE_URL configurado: {bool(settings.database_url)}", flush=True)
+print(f"[WORKER] REDIS_URL configurado: {bool(settings.upstash_redis_rest_url)}", flush=True)
+print(f"[WORKER] NCBI_EMAIL configurado: {bool(settings.ncbi_email)}", flush=True)
 from app.db_client import db
 from app.services.blast_service import blast_service
 from app.services.variant_detector import variant_detector
