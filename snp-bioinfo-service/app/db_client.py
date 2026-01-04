@@ -60,19 +60,16 @@ class DatabaseClient:
         """Actualiza el estado de un job."""
         try:
             pool = await self._get_pool()
-            now = datetime.now(timezone.utc)
 
             async with pool.acquire() as conn:
                 if status == "COMPLETED":
                     await conn.execute(
                         '''
                         UPDATE "AnalysisJob"
-                        SET status = $1, "updatedAt" = $2, "completedAt" = $3, "errorMessage" = $4
-                        WHERE id = $5
+                        SET status = $1::"JobStatus", "updatedAt" = NOW(), "completedAt" = NOW(), "errorMessage" = $2
+                        WHERE id = $3
                         ''',
                         status,
-                        now,
-                        now,
                         error_message,
                         job_id,
                     )
@@ -80,11 +77,10 @@ class DatabaseClient:
                     await conn.execute(
                         '''
                         UPDATE "AnalysisJob"
-                        SET status = $1, "updatedAt" = $2, "errorMessage" = $3
-                        WHERE id = $4
+                        SET status = $1::"JobStatus", "updatedAt" = NOW(), "errorMessage" = $2
+                        WHERE id = $3
                         ''',
                         status,
-                        now,
                         error_message,
                         job_id,
                     )
@@ -110,19 +106,17 @@ class DatabaseClient:
         """Actualiza los resultados de BLAST en un job."""
         try:
             pool = await self._get_pool()
-            now = datetime.now(timezone.utc)
 
             async with pool.acquire() as conn:
                 await conn.execute(
                     '''
                     UPDATE "AnalysisJob"
-                    SET "blastEvalue" = $1, "blastIdentity" = $2, chromosome = $3, "updatedAt" = $4
-                    WHERE id = $5
+                    SET "blastEvalue" = $1, "blastIdentity" = $2, chromosome = $3, "updatedAt" = NOW()
+                    WHERE id = $4
                     ''',
                     evalue,
                     identity,
                     chromosome,
-                    now,
                     job_id,
                 )
 
@@ -153,7 +147,6 @@ class DatabaseClient:
 
         try:
             pool = await self._get_pool()
-            now = datetime.now(timezone.utc)
 
             async with pool.acquire() as conn:
                 # Insertar variantes una por una (podría optimizarse con executemany)
@@ -166,7 +159,7 @@ class DatabaseClient:
                             "clinicalSignificance", "populationFrequency", "revelScore",
                             "caddScore", "siftPrediction", "polyphenPrediction", "createdAt"
                         ) VALUES (
-                            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW()
                         )
                         ''',
                         job_id,
@@ -185,7 +178,6 @@ class DatabaseClient:
                         variant.get("caddScore"),
                         variant.get("siftPrediction"),
                         variant.get("polyphenPrediction"),
-                        now,
                     )
 
             logger.info(
