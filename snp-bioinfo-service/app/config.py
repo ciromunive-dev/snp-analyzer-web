@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     ncbi_api_key: str = ""  # Opcional pero recomendado para más requests
 
     # Worker
-    worker_sleep_interval: int = 5  # Segundos entre polls
+    worker_sleep_interval: int = 30  # Segundos entre polls (aumentado para reducir logs)
     blast_timeout: int = 120  # Segundos
 
     # Queue
