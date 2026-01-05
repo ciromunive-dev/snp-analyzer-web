@@ -1,11 +1,20 @@
 """Cliente de base de datos para PostgreSQL (Neon)."""
 
 import structlog
+import secrets
+import time
 from datetime import datetime, timezone
 from typing import Any
 import asyncpg
 
 from app.config import settings
+
+
+def generate_cuid() -> str:
+    """Genera un ID único similar a CUID de Prisma."""
+    timestamp = hex(int(time.time() * 1000))[2:]
+    random_part = secrets.token_hex(8)
+    return f"c{timestamp}{random_part}"
 
 logger = structlog.get_logger(__name__)
 
@@ -151,17 +160,19 @@ class DatabaseClient:
             async with pool.acquire() as conn:
                 # Insertar variantes una por una (podría optimizarse con executemany)
                 for variant in variants:
+                    variant_id = generate_cuid()
                     await conn.execute(
                         '''
                         INSERT INTO "Variant" (
-                            "jobId", chromosome, position, "referenceAllele", "alternateAllele",
+                            id, "jobId", chromosome, position, "referenceAllele", "alternateAllele",
                             "variantType", "rsId", "hgvsNotation", "geneSymbol", consequence,
                             "clinicalSignificance", "populationFrequency", "revelScore",
                             "caddScore", "siftPrediction", "polyphenPrediction", "createdAt"
                         ) VALUES (
-                            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW()
+                            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW()
                         )
                         ''',
+                        variant_id,
                         job_id,
                         variant.get("chromosome"),
                         variant.get("position"),
