@@ -49,26 +49,69 @@ class BlastHit:
     @staticmethod
     def _extract_chromosome(title: str) -> str:
         """Extrae el identificador del cromosoma del título del hit."""
-        # Buscar patrones como "chromosome 17" o "chr17"
-        match = re.search(r"chromosome\s+(\d+|X|Y)", title, re.IGNORECASE)
-        if match:
-            return f"chr{match.group(1)}"
+        logger.debug("Extrayendo cromosoma de titulo", title=title[:200])
 
-        match = re.search(r"chr(\d+|X|Y)", title, re.IGNORECASE)
+        # Patrón 1: "chromosome 17" o "chromosome X"
+        match = re.search(r"chromosome\s+(\d+|X|Y|x|y)", title, re.IGNORECASE)
         if match:
-            return f"chr{match.group(1)}"
+            chrom = match.group(1).upper()
+            logger.debug("Cromosoma encontrado (patron chromosome)", chrom=chrom)
+            return f"chr{chrom}"
 
-        # Buscar NC_ accession para cromosomas humanos
+        # Patrón 2: "chr17" o "chrX"
+        match = re.search(r"\bchr(\d+|X|Y)\b", title, re.IGNORECASE)
+        if match:
+            chrom = match.group(1).upper()
+            logger.debug("Cromosoma encontrado (patron chr)", chrom=chrom)
+            return f"chr{chrom}"
+
+        # Patrón 3: NC_ accession para cromosomas humanos (GRCh38)
+        # NC_000001 - NC_000022 = chr1-chr22
+        # NC_000023 = chrX
+        # NC_000024 = chrY
         match = re.search(r"NC_0000(\d{2})", title)
         if match:
             chrom_num = int(match.group(1))
             if chrom_num <= 22:
+                logger.debug("Cromosoma encontrado (NC_ accession)", chrom=chrom_num)
                 return f"chr{chrom_num}"
             elif chrom_num == 23:
                 return "chrX"
             elif chrom_num == 24:
                 return "chrY"
 
+        # Patrón 4: Buscar "Homo sapiens chromosome X" en descripción más larga
+        match = re.search(r"Homo\s+sapiens\s+chromosome\s+(\d+|X|Y)", title, re.IGNORECASE)
+        if match:
+            chrom = match.group(1).upper()
+            logger.debug("Cromosoma encontrado (Homo sapiens chromosome)", chrom=chrom)
+            return f"chr{chrom}"
+
+        # Patrón 5: RefSeqGene on chromosome X
+        match = re.search(r"RefSeqGene\s+on\s+chromosome\s+(\d+|X|Y)", title, re.IGNORECASE)
+        if match:
+            chrom = match.group(1).upper()
+            logger.debug("Cromosoma encontrado (RefSeqGene)", chrom=chrom)
+            return f"chr{chrom}"
+
+        # Patrón 6: Accession NG_ (RefSeqGene) - intentar mapear genes conocidos
+        # Para BRCA1 y otros genes comunes
+        gene_to_chrom = {
+            "BRCA1": "chr17",
+            "BRCA2": "chr13",
+            "TP53": "chr17",
+            "APOE": "chr19",
+            "CFTR": "chr7",
+            "EGFR": "chr7",
+            "KRAS": "chr12",
+            "BRAF": "chr7",
+        }
+        for gene, chrom in gene_to_chrom.items():
+            if gene in title.upper():
+                logger.debug("Cromosoma inferido de gen conocido", gene=gene, chrom=chrom)
+                return chrom
+
+        logger.warning("No se pudo extraer cromosoma", title=title[:200])
         return "unknown"
 
 
@@ -129,6 +172,7 @@ class BlastService:
             hits: list[BlastHit] = []
 
             for alignment in blast_record.alignments:
+                logger.info("BLAST alignment encontrado", title=alignment.title[:300])
                 for hsp in alignment.hsps:
                     hit = BlastHit.from_hsp(hsp, alignment.title)
                     hits.append(hit)
