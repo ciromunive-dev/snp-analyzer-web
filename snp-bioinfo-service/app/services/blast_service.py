@@ -94,21 +94,44 @@ class BlastHit:
             logger.debug("Cromosoma encontrado (RefSeqGene)", chrom=chrom)
             return f"chr{chrom}"
 
-        # Patrón 6: Accession NG_ (RefSeqGene) - intentar mapear genes conocidos
-        # Para BRCA1 y otros genes comunes
+        # Patrón 6: Mapear genes conocidos por nombre o sinónimos
         gene_to_chrom = {
+            # Gen: cromosoma (incluir variantes de nombre)
             "BRCA1": "chr17",
             "BRCA2": "chr13",
             "TP53": "chr17",
+            "P53": "chr17",      # Sinónimo común
+            "HUMP53": "chr17",   # Nombre en GenBank antiguo
             "APOE": "chr19",
             "CFTR": "chr7",
             "EGFR": "chr7",
             "KRAS": "chr12",
             "BRAF": "chr7",
+            "MYC": "chr8",
+            "RB1": "chr13",
+            "APC": "chr5",
+            "MLH1": "chr3",
+            "MSH2": "chr2",
+            "PTEN": "chr10",
+            "VHL": "chr3",
+            "NF1": "chr17",
+            "NF2": "chr22",
+            "RET": "chr10",
+            "WT1": "chr11",
+            "ATM": "chr11",
+            "CHEK2": "chr22",
+            "PALB2": "chr16",
+            "CDH1": "chr16",
+            "STK11": "chr19",
+            "SMAD4": "chr18",
+            "BMPR1A": "chr10",
+            "MUTYH": "chr1",
         }
+
+        title_upper = title.upper()
         for gene, chrom in gene_to_chrom.items():
-            if gene in title.upper():
-                logger.debug("Cromosoma inferido de gen conocido", gene=gene, chrom=chrom)
+            if gene in title_upper:
+                logger.info("Cromosoma inferido de gen conocido", gene=gene, chrom=chrom)
                 return chrom
 
         logger.warning("No se pudo extraer cromosoma", title=title[:200])
