@@ -199,15 +199,15 @@ class BlastService:
             raise ValueError("NCBI_EMAIL es requerido para usar BLAST")
 
         try:
-            # Ejecutar BLAST contra RefSeq GRCh38 para obtener coordenadas genómicas reales
+            # Ejecutar BLAST contra RefSeq genomas GRCh38 para obtener coordenadas genómicas reales
             result_handle = NCBIWWW.qblast(
                 program="blastn",
-                database="refseq_select",  # RefSeq curated sequences con coordenadas genómicas
+                database="refseq_genomes",  # Genomas completos RefSeq
                 sequence=sequence,
-                entrez_query="Homo sapiens[organism] AND GRCh38[assembly]",  # Solo GRCh38
+                entrez_query="Homo sapiens[organism]",  # Solo humano
                 hitlist_size=10,
-                expect=0.001,
-                word_size=11,
+                expect=10,  # E-value más permisivo para secuencias cortas
+                word_size=7,  # Word size menor para mejor sensibilidad
                 megablast=True,
             )
 
