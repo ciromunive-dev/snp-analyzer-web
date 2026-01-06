@@ -27,6 +27,9 @@ class BlastHit:
     query_sequence: str
     subject_sequence: str
     alignment_length: int
+    strand: str = "+"  # Strand del alineamiento
+    block_sizes: str = ""  # Tamaños de bloques (para genes con intrones)
+    block_starts: str = ""  # Posiciones de inicio de bloques en target
 
     @classmethod
     def from_blat_array(cls, blat_array: list, fields: list[str], query_seq: str) -> Self:
@@ -43,6 +46,7 @@ class BlastHit:
         chrom = data.get("tName", "unknown")
         start = int(data.get("tStart", 0)) + 1  # Convertir a 1-based
         end = int(data.get("tEnd", 0))
+        strand = data.get("strand", "+")
 
         # Calcular identidad
         matches = int(data.get("matches", 0))
@@ -55,6 +59,10 @@ class BlastHit:
 
         alignment_length = int(data.get("qSize", len(query_seq)))
 
+        # Guardar información de bloques para reconstruir secuencia de referencia
+        block_sizes = data.get("blockSizes", "")
+        block_starts = data.get("tStarts", "")
+
         return cls(
             chromosome=chrom,
             start=start,
@@ -62,8 +70,11 @@ class BlastHit:
             identity=identity,
             evalue=evalue,
             query_sequence=query_seq,
-            subject_sequence="",  # BLAT no devuelve la secuencia subject directamente
+            subject_sequence="",  # Se llenará después
             alignment_length=alignment_length,
+            strand=strand,
+            block_sizes=block_sizes,
+            block_starts=block_starts,
         )
 
 
@@ -208,7 +219,7 @@ class BlastService:
         if hits:
             hits.sort(key=lambda x: x.evalue)
             best = hits[0]
-            ref_seq = await self._get_reference_sequence(best.chromosome, best.start, best.end)
+            ref_seq = await self._get_reference_sequence_from_blocks(best)
             if ref_seq:
                 # Actualizar el mejor hit con la secuencia de referencia
                 hits[0] = BlastHit(
@@ -220,32 +231,78 @@ class BlastService:
                     query_sequence=best.query_sequence,
                     subject_sequence=ref_seq,
                     alignment_length=best.alignment_length,
+                    strand=best.strand,
+                    block_sizes=best.block_sizes,
+                    block_starts=best.block_starts,
                 )
 
         return hits
 
-    async def _get_reference_sequence(self, chrom: str, start: int, end: int) -> str:
-        """Obtiene la secuencia de referencia del genoma desde UCSC API."""
+    async def _get_reference_sequence_from_blocks(self, hit: BlastHit) -> str:
+        """Obtiene la secuencia de referencia reconstruyendo desde los bloques de BLAT.
+
+        BLAT devuelve alineamientos con múltiples bloques cuando hay intrones.
+        Necesitamos concatenar las secuencias de cada bloque.
+        """
+        # Parsear block_sizes y block_starts
+        if not hit.block_sizes or not hit.block_starts:
+            # Sin bloques, usar rango simple
+            return await self._get_sequence_range(hit.chromosome, hit.start - 1, hit.end)
+
+        try:
+            sizes = [int(s) for s in hit.block_sizes.rstrip(",").split(",")]
+            starts = [int(s) for s in hit.block_starts.rstrip(",").split(",")]
+        except ValueError:
+            logger.error("Error parseando bloques BLAT", sizes=hit.block_sizes, starts=hit.block_starts)
+            return ""
+
+        logger.debug("Reconstruyendo secuencia desde bloques", num_blocks=len(sizes))
+
+        # Obtener secuencia de cada bloque y concatenar
+        ref_parts = []
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            for block_start, block_size in zip(starts, sizes):
+                seq = await self._fetch_sequence(client, hit.chromosome, block_start, block_start + block_size)
+                if seq:
+                    ref_parts.append(seq)
+
+        ref_seq = "".join(ref_parts)
+
+        # Si el strand es negativo, hacer reverse complement
+        if hit.strand == "-":
+            ref_seq = self._reverse_complement(ref_seq)
+            logger.debug("Aplicado reverse complement (strand -)")
+
+        logger.debug("Secuencia de referencia reconstruida", length=len(ref_seq), query_length=len(hit.query_sequence))
+        return ref_seq
+
+    async def _fetch_sequence(self, client: httpx.AsyncClient, chrom: str, start: int, end: int) -> str:
+        """Obtiene una secuencia del genoma."""
         params = {
             "genome": self.assembly,
             "chrom": chrom,
-            "start": start - 1,  # API usa 0-based
+            "start": start,
             "end": end,
         }
-
-        logger.debug("Obteniendo secuencia de referencia", chrom=chrom, start=start, end=end)
-
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(UCSC_API_URL, params=params)
-                response.raise_for_status()
-                data = response.json()
-                ref_seq = data.get("dna", "").upper()
-                logger.debug("Secuencia de referencia obtenida", length=len(ref_seq))
-                return ref_seq
+            response = await client.get(UCSC_API_URL, params=params)
+            response.raise_for_status()
+            data = response.json()
+            return data.get("dna", "").upper()
         except Exception as e:
-            logger.error("Error obteniendo secuencia de referencia", error=str(e))
+            logger.error("Error obteniendo secuencia", error=str(e), chrom=chrom, start=start, end=end)
             return ""
+
+    async def _get_sequence_range(self, chrom: str, start: int, end: int) -> str:
+        """Obtiene secuencia de un rango simple."""
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            return await self._fetch_sequence(client, chrom, start, end)
+
+    @staticmethod
+    def _reverse_complement(seq: str) -> str:
+        """Calcula el reverse complement de una secuencia de ADN."""
+        complement = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
+        return "".join(complement.get(base, base) for base in reversed(seq))
 
 
 # Instancia global (mantiene compatibilidad con imports existentes)
