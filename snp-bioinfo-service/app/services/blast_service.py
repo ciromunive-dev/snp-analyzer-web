@@ -10,8 +10,9 @@ from app.config import settings
 
 logger = structlog.get_logger(__name__)
 
-# URL de la API BLAT de UCSC
+# URLs de APIs de UCSC
 UCSC_BLAT_URL = "https://genome.ucsc.edu/cgi-bin/hgBlat"
+UCSC_API_URL = "https://api.genome.ucsc.edu/getData/sequence"
 
 
 @dataclass
@@ -203,7 +204,48 @@ class BlastService:
                     identity=hit.identity,
                 )
 
+        # Obtener secuencia de referencia para el mejor hit
+        if hits:
+            hits.sort(key=lambda x: x.evalue)
+            best = hits[0]
+            ref_seq = await self._get_reference_sequence(best.chromosome, best.start, best.end)
+            if ref_seq:
+                # Actualizar el mejor hit con la secuencia de referencia
+                hits[0] = BlastHit(
+                    chromosome=best.chromosome,
+                    start=best.start,
+                    end=best.end,
+                    identity=best.identity,
+                    evalue=best.evalue,
+                    query_sequence=best.query_sequence,
+                    subject_sequence=ref_seq,
+                    alignment_length=best.alignment_length,
+                )
+
         return hits
+
+    async def _get_reference_sequence(self, chrom: str, start: int, end: int) -> str:
+        """Obtiene la secuencia de referencia del genoma desde UCSC API."""
+        params = {
+            "genome": self.assembly,
+            "chrom": chrom,
+            "start": start - 1,  # API usa 0-based
+            "end": end,
+        }
+
+        logger.debug("Obteniendo secuencia de referencia", chrom=chrom, start=start, end=end)
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(UCSC_API_URL, params=params)
+                response.raise_for_status()
+                data = response.json()
+                ref_seq = data.get("dna", "").upper()
+                logger.debug("Secuencia de referencia obtenida", length=len(ref_seq))
+                return ref_seq
+        except Exception as e:
+            logger.error("Error obteniendo secuencia de referencia", error=str(e))
+            return ""
 
 
 # Instancia global (mantiene compatibilidad con imports existentes)
