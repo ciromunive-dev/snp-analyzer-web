@@ -12,6 +12,34 @@ from app.config import settings
 
 logger = structlog.get_logger(__name__)
 
+# Mapeo de RefSeq accession numbers (GRCh38) a cromosomas
+REFSEQ_TO_CHROM = {
+    "NC_000001": "chr1",
+    "NC_000002": "chr2",
+    "NC_000003": "chr3",
+    "NC_000004": "chr4",
+    "NC_000005": "chr5",
+    "NC_000006": "chr6",
+    "NC_000007": "chr7",
+    "NC_000008": "chr8",
+    "NC_000009": "chr9",
+    "NC_000010": "chr10",
+    "NC_000011": "chr11",
+    "NC_000012": "chr12",
+    "NC_000013": "chr13",
+    "NC_000014": "chr14",
+    "NC_000015": "chr15",
+    "NC_000016": "chr16",
+    "NC_000017": "chr17",
+    "NC_000018": "chr18",
+    "NC_000019": "chr19",
+    "NC_000020": "chr20",
+    "NC_000021": "chr21",
+    "NC_000022": "chr22",
+    "NC_000023": "chrX",
+    "NC_000024": "chrY",
+}
+
 
 @dataclass
 class BlastHit:
@@ -51,34 +79,29 @@ class BlastHit:
         """Extrae el identificador del cromosoma del título del hit."""
         logger.debug("Extrayendo cromosoma de titulo", title=title[:200])
 
-        # Patrón 1: "chromosome 17" o "chromosome X"
+        # Patrón 1 (PRIORITARIO): NC_ accession para cromosomas humanos RefSeq (GRCh38)
+        # Esto es lo más confiable cuando usamos refseq_select
+        match = re.search(r"(NC_0000\d{2})", title)
+        if match:
+            accession = match.group(1)
+            if accession in REFSEQ_TO_CHROM:
+                chrom = REFSEQ_TO_CHROM[accession]
+                logger.info("Cromosoma encontrado (RefSeq accession)", accession=accession, chrom=chrom)
+                return chrom
+
+        # Patrón 2: "chromosome 17" o "chromosome X"
         match = re.search(r"chromosome\s+(\d+|X|Y|x|y)", title, re.IGNORECASE)
         if match:
             chrom = match.group(1).upper()
             logger.debug("Cromosoma encontrado (patron chromosome)", chrom=chrom)
             return f"chr{chrom}"
 
-        # Patrón 2: "chr17" o "chrX"
+        # Patrón 3: "chr17" o "chrX"
         match = re.search(r"\bchr(\d+|X|Y)\b", title, re.IGNORECASE)
         if match:
             chrom = match.group(1).upper()
             logger.debug("Cromosoma encontrado (patron chr)", chrom=chrom)
             return f"chr{chrom}"
-
-        # Patrón 3: NC_ accession para cromosomas humanos (GRCh38)
-        # NC_000001 - NC_000022 = chr1-chr22
-        # NC_000023 = chrX
-        # NC_000024 = chrY
-        match = re.search(r"NC_0000(\d{2})", title)
-        if match:
-            chrom_num = int(match.group(1))
-            if chrom_num <= 22:
-                logger.debug("Cromosoma encontrado (NC_ accession)", chrom=chrom_num)
-                return f"chr{chrom_num}"
-            elif chrom_num == 23:
-                return "chrX"
-            elif chrom_num == 24:
-                return "chrY"
 
         # Patrón 4: Buscar "Homo sapiens chromosome X" en descripción más larga
         match = re.search(r"Homo\s+sapiens\s+chromosome\s+(\d+|X|Y)", title, re.IGNORECASE)
@@ -176,12 +199,12 @@ class BlastService:
             raise ValueError("NCBI_EMAIL es requerido para usar BLAST")
 
         try:
-            # Ejecutar BLAST (esto es bloqueante, en producción usar threads)
+            # Ejecutar BLAST contra RefSeq GRCh38 para obtener coordenadas genómicas reales
             result_handle = NCBIWWW.qblast(
                 program="blastn",
-                database="nt",
+                database="refseq_select",  # RefSeq curated sequences con coordenadas genómicas
                 sequence=sequence,
-                entrez_query="Homo sapiens[organism]",
+                entrez_query="Homo sapiens[organism] AND GRCh38[assembly]",  # Solo GRCh38
                 hitlist_size=10,
                 expect=0.001,
                 word_size=11,

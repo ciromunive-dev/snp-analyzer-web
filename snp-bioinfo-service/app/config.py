@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Worker
     worker_sleep_interval: int = 30  # Segundos entre polls (aumentado para reducir logs)
-    blast_timeout: int = 120  # Segundos
+    blast_timeout: int = 300  # Segundos (5 min para RefSeq que es más lento)
 
     # Queue
     queue_name: str = "snp-analysis-queue"
