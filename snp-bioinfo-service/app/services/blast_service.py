@@ -141,11 +141,24 @@ class BlastService:
             "output": "json",
         }
 
+        # Agregar API key si está configurada (requerida para acceso programático)
+        if settings.ucsc_api_key:
+            params["apiKey"] = settings.ucsc_api_key
+            logger.debug("Usando UCSC API key para BLAT")
+        else:
+            logger.warning("UCSC_API_KEY no configurada - BLAT puede fallar con CAPTCHA")
+
         logger.debug("Llamando a UCSC BLAT", assembly=self.assembly, seq_length=len(clean_seq))
 
         async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.get(UCSC_BLAT_URL, params=params)
             response.raise_for_status()
+
+            # Verificar si la respuesta es JSON (éxito) o HTML (CAPTCHA/error)
+            content_type = response.headers.get("content-type", "")
+            if "text/html" in content_type:
+                logger.error("UCSC BLAT devolvió HTML en lugar de JSON - posible CAPTCHA")
+                raise ValueError("UCSC BLAT requiere API key para acceso programático. Configure UCSC_API_KEY.")
 
             # BLAT devuelve JSON con los resultados
             data = response.json()

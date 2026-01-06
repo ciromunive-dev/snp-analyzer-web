@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     ncbi_email: str = ""  # Requerido por NCBI para usar sus APIs
     ncbi_api_key: str = ""  # Opcional pero recomendado para más requests
 
+    # UCSC BLAT
+    ucsc_api_key: str = ""  # Requerido para acceso programático a BLAT (evita CAPTCHA)
+
     # Worker
     worker_sleep_interval: int = 30  # Segundos entre polls (aumentado para reducir logs)
     blast_timeout: int = 300  # Segundos (5 min para RefSeq que es más lento)
