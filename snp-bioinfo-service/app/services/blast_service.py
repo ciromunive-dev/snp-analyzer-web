@@ -28,24 +28,31 @@ class BlastHit:
     alignment_length: int
 
     @classmethod
-    def from_blat_result(cls, blat_data: dict, query_seq: str) -> Self:
-        """Crea un BlastHit desde resultado de BLAT."""
+    def from_blat_array(cls, blat_array: list, fields: list[str], query_seq: str) -> Self:
+        """Crea un BlastHit desde resultado de BLAT (formato array).
+
+        BLAT devuelve arrays donde cada índice corresponde a un campo en 'fields':
+        fields: ['matches', 'misMatches', ..., 'tName', 'tSize', 'tStart', 'tEnd', ...]
+        blat_array: [132, 0, ..., 'chr17', 83257441, 7676236, 7676594, ...]
+        """
+        # Crear diccionario campo -> valor
+        data = dict(zip(fields, blat_array))
+
         # BLAT devuelve coordenadas 0-based, convertimos a 1-based
-        chrom = blat_data.get("tName", "unknown")
-        start = int(blat_data.get("tStart", 0)) + 1  # Convertir a 1-based
-        end = int(blat_data.get("tEnd", 0))
+        chrom = data.get("tName", "unknown")
+        start = int(data.get("tStart", 0)) + 1  # Convertir a 1-based
+        end = int(data.get("tEnd", 0))
 
         # Calcular identidad
-        matches = int(blat_data.get("matches", 0))
-        mismatches = int(blat_data.get("misMatches", 0))
+        matches = int(data.get("matches", 0))
+        mismatches = int(data.get("misMatches", 0))
         total = matches + mismatches
         identity = (matches / total * 100) if total > 0 else 0
 
-        # BLAT usa score, lo convertimos a un pseudo e-value (menor es mejor)
-        score = int(blat_data.get("score", 0))
-        evalue = 1.0 / (score + 1) if score > 0 else 1.0
+        # BLAT usa matches como score, lo convertimos a pseudo e-value (menor es mejor)
+        evalue = 1.0 / (matches + 1) if matches > 0 else 1.0
 
-        alignment_length = int(blat_data.get("qSize", len(query_seq)))
+        alignment_length = int(data.get("qSize", len(query_seq)))
 
         return cls(
             chromosome=chrom,
@@ -154,27 +161,36 @@ class BlastService:
             response = await client.get(UCSC_BLAT_URL, params=params)
             response.raise_for_status()
 
-            # Verificar si la respuesta es JSON (éxito) o HTML (CAPTCHA/error)
-            content_type = response.headers.get("content-type", "")
-            if "text/html" in content_type:
-                logger.error("UCSC BLAT devolvió HTML en lugar de JSON - posible CAPTCHA")
+            # UCSC devuelve text/html incluso para JSON válido
+            # Verificamos si el contenido parece ser HTML real (CAPTCHA) o JSON
+            text = response.text.strip()
+            if text.startswith("<") or "turnstile" in text.lower():
+                logger.error("UCSC BLAT devolvió página CAPTCHA")
                 raise ValueError("UCSC BLAT requiere API key para acceso programático. Configure UCSC_API_KEY.")
 
-            # BLAT devuelve JSON con los resultados
+            # Parsear JSON
             data = response.json()
 
         hits = []
+        fields = data.get("fields", [])
         blat_results = data.get("blat", [])
 
         logger.debug("BLAT resultados recibidos", count=len(blat_results))
 
+        # Encontrar índice de tName en fields para filtrar
+        try:
+            tname_idx = fields.index("tName")
+        except ValueError:
+            logger.error("Campo tName no encontrado en respuesta BLAT")
+            return []
+
         for result in blat_results:
             # Filtrar solo cromosomas principales (chr1-22, X, Y)
-            chrom = result.get("tName", "")
+            chrom = result[tname_idx] if len(result) > tname_idx else ""
             if not re.match(r'^chr(\d+|X|Y)$', chrom):
                 continue
 
-            hit = BlastHit.from_blat_result(result, clean_seq)
+            hit = BlastHit.from_blat_array(result, fields, clean_seq)
 
             # Solo incluir hits con buena identidad (>80%)
             if hit.identity >= 80:
