@@ -199,14 +199,14 @@ class BlastService:
             raise ValueError("NCBI_EMAIL es requerido para usar BLAST")
 
         try:
-            # Ejecutar BLAST contra nucleotide collection filtrado por humano
-            # Usamos 'nt' que es rápido, con filtro estricto por cromosomas humanos GRCh38
+            # Ejecutar BLAST contra nucleotide collection
+            # Usamos 'nt' que es rápido, filtrado solo por humano
             result_handle = NCBIWWW.qblast(
                 program="blastn",
                 database="nt",
                 sequence=sequence,
-                entrez_query="Homo sapiens[organism] AND (NC_000001[accn] OR NC_000002[accn] OR NC_000003[accn] OR NC_000004[accn] OR NC_000005[accn] OR NC_000006[accn] OR NC_000007[accn] OR NC_000008[accn] OR NC_000009[accn] OR NC_000010[accn] OR NC_000011[accn] OR NC_000012[accn] OR NC_000013[accn] OR NC_000014[accn] OR NC_000015[accn] OR NC_000016[accn] OR NC_000017[accn] OR NC_000018[accn] OR NC_000019[accn] OR NC_000020[accn] OR NC_000021[accn] OR NC_000022[accn] OR NC_000023[accn] OR NC_000024[accn])",
-                hitlist_size=5,
+                entrez_query="Homo sapiens[organism]",
+                hitlist_size=20,  # Más hits para filtrar después
                 expect=0.001,
                 word_size=11,
                 megablast=True,
@@ -217,16 +217,30 @@ class BlastService:
             result_handle.close()
 
             hits: list[BlastHit] = []
+            genomic_hits: list[BlastHit] = []  # Hits con coordenadas genómicas reales
 
             for alignment in blast_record.alignments:
                 logger.info("BLAST alignment encontrado", title=alignment.title[:300])
+
+                # Verificar si es un cromosoma RefSeq (coordenadas genómicas reales)
+                is_genomic = bool(re.search(r"NC_0000\d{2}", alignment.title))
+
                 for hsp in alignment.hsps:
                     hit = BlastHit.from_hsp(hsp, alignment.title)
                     hits.append(hit)
+                    if is_genomic:
+                        genomic_hits.append(hit)
 
-            # Ordenar por e-value (menor es mejor)
-            hits.sort(key=lambda x: x.evalue)
-            best_hit = hits[0] if hits else None
+            # Priorizar hits genómicos si existen
+            if genomic_hits:
+                logger.info("Usando hits genómicos (NC_0000XX)", count=len(genomic_hits))
+                genomic_hits.sort(key=lambda x: x.evalue)
+                best_hit = genomic_hits[0]
+            else:
+                # Fallback a todos los hits
+                logger.warning("No se encontraron hits genómicos, usando todos los hits")
+                hits.sort(key=lambda x: x.evalue)
+                best_hit = hits[0] if hits else None
 
             logger.info(
                 "BLAST completado",
