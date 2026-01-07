@@ -170,7 +170,8 @@ class BlastService:
         logger.debug("Llamando a UCSC BLAT", assembly=self.assembly, seq_length=len(clean_seq))
 
         async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.get(UCSC_BLAT_URL, params=params)
+            # Usar POST para soportar secuencias largas (evita límite de URL ~8KB)
+            response = await client.post(UCSC_BLAT_URL, data=params)
             response.raise_for_status()
 
             # UCSC devuelve text/html incluso para JSON válido
