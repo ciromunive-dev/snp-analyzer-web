@@ -169,8 +169,11 @@ export function ExportPanel({
       PolyPhen: v.polyphenPrediction ?? "",
     }));
 
-    const csv = Papa.unparse(data);
-    downloadFile(csv, `snp-analyzer-${jobId.slice(0, 8)}.csv`, "text/csv");
+    // Usar punto y coma como delimitador para Excel en español
+    const csv = Papa.unparse(data, { delimiter: ";" });
+    // Agregar BOM para UTF-8 (Excel lo necesita para mostrar acentos correctamente)
+    const BOM = "\uFEFF";
+    downloadFile(BOM + csv, `snp-analyzer-${jobId.slice(0, 8)}.csv`, "text/csv;charset=utf-8");
   };
 
   const exportVCF = () => {
