@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
 import { Sidebar } from "~/components/ui/sidebar";
 import { ChartIcon, DNAIcon, CheckIcon, ClockIcon } from "~/components/icons";
@@ -5,7 +6,12 @@ import { ChartIcon, DNAIcon, CheckIcon, ClockIcon } from "~/components/icons";
 export default async function StatsPage() {
   const session = await auth();
 
-  // Demo mode: empty stats
+  // Redirect to signin if not authenticated
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
+
+  // TODO: fetch real stats from database
   const stats = {
     totalAnalyses: 0,
     processingAnalyses: 0,

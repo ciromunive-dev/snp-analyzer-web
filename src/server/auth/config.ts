@@ -1,5 +1,7 @@
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import { DEMO_USER } from "~/lib/constants";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import Google from "next-auth/providers/google";
+import { db } from "~/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -16,20 +18,35 @@ declare module "next-auth" {
 }
 
 /**
- * Options for NextAuth.js - minimal config for demo mode
+ * Options for NextAuth.js with Google OAuth and Prisma adapter
  */
 export const authConfig = {
-  secret: process.env.AUTH_SECRET ?? "demo-secret-key-for-testing",
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
-  providers: [],
+  adapter: PrismaAdapter(db),
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    session: ({ session }) => ({
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: DEMO_USER.id,
+        id: token.sub ?? session.user.id,
       },
     }),
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
+    },
   },
   pages: {
     signIn: "/auth/signin",

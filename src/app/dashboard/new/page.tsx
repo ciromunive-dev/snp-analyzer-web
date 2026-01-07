@@ -1,20 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Sidebar } from "~/components/ui/sidebar";
 import { SequenceInput } from "~/components/sequence-input";
 import { AnalysisStatus } from "~/components/analysis-status";
 import { ArrowLeftIcon, PlusIcon } from "~/components/icons";
-import { DEMO_USER } from "~/lib/constants";
 
 export default function NewAnalysisPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
 
-  // Demo mode: use demo user
-  const session = { user: DEMO_USER };
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+    }
+  }, [status, router]);
+
+  // Show loading while checking auth
+  if (status === "loading" || !session?.user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-text-light">Cargando...</div>
+      </div>
+    );
+  }
 
   const handleSubmitSuccess = (jobId: string) => {
     setCurrentJobId(jobId);

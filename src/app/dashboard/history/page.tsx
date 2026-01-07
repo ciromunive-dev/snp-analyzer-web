@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
 import { Sidebar } from "~/components/ui/sidebar";
 import { DNAIcon, ClockIcon, CheckIcon, ErrorIcon, ArrowRightIcon } from "~/components/icons";
@@ -6,7 +7,12 @@ import { DNAIcon, ClockIcon, CheckIcon, ErrorIcon, ArrowRightIcon } from "~/comp
 export default async function HistoryPage() {
   const session = await auth();
 
-  // Demo mode: empty history
+  // Redirect to signin if not authenticated
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
+
+  // TODO: fetch real history from database
   const analyses: Array<{
     id: string;
     sequenceName: string;

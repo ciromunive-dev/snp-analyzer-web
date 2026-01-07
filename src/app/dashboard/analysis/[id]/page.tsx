@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { api } from "~/trpc/react";
 import { Sidebar } from "~/components/ui/sidebar";
 import { VariantTable, type Variant } from "~/components/variant-table";
@@ -18,7 +19,6 @@ import {
   SpinnerIcon,
   ErrorIcon,
 } from "~/components/icons";
-import { DEMO_USER } from "~/lib/constants";
 
 interface AnalysisPageProps {
   params: Promise<{ id: string }>;
@@ -28,10 +28,24 @@ export default function AnalysisResultsPage({ params }: AnalysisPageProps) {
   // Next.js 16: params es una Promise, usar use() para unwrap
   const { id: jobId } = use(params);
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
 
-  // Demo mode: use demo user
-  const session = { user: DEMO_USER };
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+    }
+  }, [status, router]);
+
+  // Show loading while checking auth
+  if (status === "loading" || !session?.user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-text-light">Cargando...</div>
+      </div>
+    );
+  }
 
   const { data: results, isLoading, error } = api.analysis.results.useQuery({ jobId });
 

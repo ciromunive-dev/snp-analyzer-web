@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
 import { Sidebar } from "~/components/ui/sidebar";
 import {
@@ -13,7 +14,12 @@ import {
 export default async function DashboardPage() {
   const session = await auth();
 
-  // Demo mode: use placeholder stats
+  // Redirect to signin if not authenticated
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
+
+  // Placeholder stats - will be replaced with real data
   const stats = {
     totalAnalyses: 0,
     processingAnalyses: 0,
