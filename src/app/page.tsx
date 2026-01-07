@@ -69,13 +69,13 @@ export default async function Home() {
         aria-labelledby="hero-title"
       >
         <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm text-zinc-400 border border-zinc-700">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-sm text-zinc-200 border border-zinc-600">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
             <span>Analisis genetico en la nube</span>
           </div>
 
           <h1 id="hero-title" className="mb-6 text-5xl font-extrabold tracking-tight sm:text-7xl">
-            <span className="bg-gradient-to-r from-white via-zinc-300 to-emerald-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-zinc-900 via-zinc-700 to-emerald-600 bg-clip-text text-transparent">
               SNP Analyzer
             </span>
           </h1>
