@@ -1,25 +1,37 @@
-import { redirect } from "next/navigation";
-import { auth } from "~/server/auth";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { api } from "~/trpc/react";
 import { Sidebar } from "~/components/ui/sidebar";
-import { ChartIcon, DNAIcon, CheckIcon, ClockIcon } from "~/components/icons";
+import { ChartIcon, DNAIcon, CheckIcon, ClockIcon, SpinnerIcon, ErrorIcon } from "~/components/icons";
 
-export default async function StatsPage() {
-  const session = await auth();
+export default function StatsPage() {
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
 
-  // Redirect to signin if not authenticated
-  if (!session?.user) {
-    redirect("/auth/signin");
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (authStatus === "unauthenticated") {
+      router.push("/auth/signin");
+    }
+  }, [authStatus, router]);
+
+  // Fetch stats from API
+  const { data: stats, isLoading, error } = api.analysis.stats.useQuery(
+    undefined,
+    { enabled: authStatus === "authenticated" }
+  );
+
+  // Show loading while checking auth
+  if (authStatus === "loading" || !session?.user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <SpinnerIcon className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
-
-  // TODO: fetch real stats from database
-  const stats = {
-    totalAnalyses: 0,
-    processingAnalyses: 0,
-    completedAnalyses: 0,
-    totalVariants: 0,
-    significanceDistribution: [] as Array<{ significance: string | null; _count: number }>,
-    consequenceDistribution: [] as Array<{ consequence: string | null; _count: number }>,
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,82 +46,102 @@ export default async function StatsPage() {
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Analisis"
-            value={stats.totalAnalyses.toString()}
-            icon={<DNAIcon className="h-6 w-6" />}
-            color="text-primary"
-          />
-          <StatCard
-            title="Completados"
-            value={stats.completedAnalyses.toString()}
-            icon={<CheckIcon className="h-6 w-6" />}
-            color="text-green-400"
-          />
-          <StatCard
-            title="En Progreso"
-            value={stats.processingAnalyses.toString()}
-            icon={<ClockIcon className="h-6 w-6" />}
-            color="text-yellow-400"
-          />
-          <StatCard
-            title="Total Variantes"
-            value={stats.totalVariants.toString()}
-            icon={<ChartIcon className="h-6 w-6" />}
-            color="text-accent"
-          />
-        </div>
-
-        {/* Significance Distribution */}
-        {stats.totalVariants > 0 && (
-          <div className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold">Distribucion por Significancia Clinica</h2>
-            <div className="rounded-xl border border-white/10 bg-surface p-6">
-              <div className="space-y-4">
-                {stats.significanceDistribution.map((item: { significance: string | null; _count: number }) => (
-                  <SignificanceBar
-                    key={item.significance}
-                    label={formatSignificance(item.significance)}
-                    count={item._count}
-                    total={stats.totalVariants}
-                    color={getSignificanceColor(item.significance)}
-                  />
-                ))}
-              </div>
-            </div>
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <SpinnerIcon className="h-8 w-8 animate-spin text-primary" />
           </div>
         )}
 
-        {/* Consequence Distribution */}
-        {stats.totalVariants > 0 && (
-          <div>
-            <h2 className="mb-4 text-xl font-semibold">Distribucion por Consecuencia</h2>
-            <div className="rounded-xl border border-white/10 bg-surface p-6">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {stats.consequenceDistribution.slice(0, 9).map((item: { consequence: string | null; _count: number }) => (
-                  <ConsequenceCard
-                    key={item.consequence}
-                    label={formatConsequence(item.consequence)}
-                    count={item._count}
-                    color={getConsequenceColor(item.consequence)}
-                  />
-                ))}
-              </div>
-            </div>
+        {/* Error state */}
+        {error && (
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+            <ErrorIcon className="mx-auto mb-2 h-8 w-8 text-red-500" />
+            <p className="text-red-400">Error al cargar estadisticas: {error.message}</p>
           </div>
         )}
 
-        {/* Empty State */}
-        {stats.totalVariants === 0 && (
-          <div className="rounded-xl border border-white/10 bg-surface p-12 text-center">
-            <ChartIcon className="mx-auto mb-4 h-12 w-12 text-gray-500" aria-hidden="true" />
-            <h2 className="mb-2 text-lg font-semibold">Sin datos estadisticos</h2>
-            <p className="text-gray-400">
-              Las estadisticas apareceran cuando tengas analisis completados con variantes
-            </p>
-          </div>
+        {/* Stats content */}
+        {!isLoading && !error && stats && (
+          <>
+            {/* Stats Grid */}
+            <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                title="Total Analisis"
+                value={stats.totalAnalyses.toString()}
+                icon={<DNAIcon className="h-6 w-6" />}
+                color="text-primary"
+              />
+              <StatCard
+                title="Completados"
+                value={stats.completedAnalyses.toString()}
+                icon={<CheckIcon className="h-6 w-6" />}
+                color="text-green-400"
+              />
+              <StatCard
+                title="En Progreso"
+                value={(stats.pendingAnalyses + stats.processingAnalyses).toString()}
+                icon={<ClockIcon className="h-6 w-6" />}
+                color="text-yellow-400"
+              />
+              <StatCard
+                title="Total Variantes"
+                value={stats.totalVariants.toString()}
+                icon={<ChartIcon className="h-6 w-6" />}
+                color="text-accent"
+              />
+            </div>
+
+            {/* Significance Distribution */}
+            {stats.totalVariants > 0 && stats.significanceDistribution.length > 0 && (
+              <div className="mb-8">
+                <h2 className="mb-4 text-xl font-semibold">Distribucion por Significancia Clinica</h2>
+                <div className="rounded-xl border border-white/10 bg-surface p-6">
+                  <div className="space-y-4">
+                    {stats.significanceDistribution.map((item) => (
+                      <SignificanceBar
+                        key={item.significance ?? "unknown"}
+                        label={formatSignificance(item.significance)}
+                        count={item._count}
+                        total={stats.totalVariants}
+                        color={getSignificanceColor(item.significance)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Consequence Distribution */}
+            {stats.totalVariants > 0 && stats.consequenceDistribution.length > 0 && (
+              <div>
+                <h2 className="mb-4 text-xl font-semibold">Distribucion por Consecuencia</h2>
+                <div className="rounded-xl border border-white/10 bg-surface p-6">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {stats.consequenceDistribution.slice(0, 9).map((item) => (
+                      <ConsequenceCard
+                        key={item.consequence ?? "unknown"}
+                        label={formatConsequence(item.consequence)}
+                        count={item._count}
+                        color={getConsequenceColor(item.consequence)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {stats.totalVariants === 0 && (
+              <div className="rounded-xl border border-white/10 bg-surface p-12 text-center">
+                <ChartIcon className="mx-auto mb-4 h-12 w-12 text-gray-500" aria-hidden="true" />
+                <h2 className="mb-2 text-lg font-semibold">Sin datos estadisticos</h2>
+                <p className="text-gray-400">
+                  Las estadisticas apareceran cuando tengas analisis completados con variantes
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
