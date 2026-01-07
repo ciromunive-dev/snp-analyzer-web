@@ -12,7 +12,7 @@ const dnaSequenceSchema = z
   .min(10, "La secuencia debe tener al menos 10 caracteres")
   .max(100000, "La secuencia no puede exceder 100,000 caracteres")
   .regex(
-    /^[ATGCNatgcn\s>;\-\_\.a-zA-Z0-9\n\r]+$/,
+    /^[ATGCNatgcn\s>;\-\_\.a-zA-Z0-9\n\r\(\)\[\]\{\}\|\:\,\/\'\"\#\=\+\*\&\%\$\@\!\?]+$/,
     "Formato FASTA invalido"
   )
   .transform((seq) => {
