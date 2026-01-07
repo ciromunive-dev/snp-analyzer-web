@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
   DNAIcon,
   HomeIcon,
@@ -127,13 +128,13 @@ export function Sidebar({ user }: SidebarProps) {
                 <p className="truncate text-sm text-text-lighter">{user.email}</p>
               </div>
             </div>
-            <Link
-              href="/api/auth/signout"
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2 text-sm font-medium text-text transition hover:bg-background-lighter focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <LogoutIcon className="h-4 w-4" aria-hidden="true" />
               Cerrar sesion
-            </Link>
+            </button>
           </div>
         </div>
       </aside>
