@@ -69,37 +69,35 @@ export default async function Home() {
         aria-labelledby="hero-title"
       >
         <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-8 flex justify-center">
-            <img src="/logo.png" alt="" className="h-20 w-20" aria-hidden="true" />
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary-light">
+            <span className="h-2 w-2 rounded-full bg-secondary animate-pulse" aria-hidden="true" />
+            <span>Analisis genetico en la nube</span>
           </div>
 
-          <h1 id="hero-title" className="mb-6 text-5xl font-bold tracking-tight text-text sm:text-6xl">
-            SNP Analyzer
+          <h1 id="hero-title" className="mb-6 text-5xl font-extrabold tracking-tight sm:text-7xl">
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              SNP Analyzer
+            </span>
           </h1>
 
-          <p className="mb-4 text-lg font-medium text-primary">
-            Plataforma de Analisis de Variantes Geneticas
-          </p>
-
-          <p className="mb-10 text-lg text-text-light max-w-2xl mx-auto">
-            Herramienta bioinformatica para deteccion y anotacion funcional de SNPs
-            en secuencias de ADN humano mediante alineamiento BLAT e integracion
-            con bases de datos clinicas.
+          <p className="mb-8 text-xl text-text-light sm:text-2xl">
+            Analiza variantes geneticas en tu ADN de forma rapida y sencilla.
+            Detecta SNPs, alinea con BLAT y obtiene anotaciones clinicas.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href={session ? "/dashboard" : "/api/auth/signin"}
-              className="group flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+              className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-semibold text-white transition hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
             >
-              {session ? "Acceder al Dashboard" : "Iniciar Sesion"}
-              <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
+              {session ? "Ir al Dashboard" : "Comenzar ahora"}
+              <ArrowRightIcon className="h-5 w-5 transition group-hover:translate-x-1" aria-hidden="true" />
             </Link>
             <Link
               href="#features"
-              className="rounded-lg border border-border px-6 py-3 font-medium text-text transition hover:bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+              className="rounded-lg border border-border px-8 py-4 text-lg font-semibold text-text transition hover:bg-background-lighter focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
             >
-              Ver Caracteristicas
+              Conocer mas
             </Link>
           </div>
 
@@ -114,10 +112,10 @@ export default async function Home() {
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
           <a
             href="#features"
-            className="block text-text-lighter transition hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary rounded-full p-2"
+            className="block animate-bounce text-text-lighter transition hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary rounded-full p-2"
             aria-label="Ver caracteristicas"
           >
-            <ChevronDownIcon className="h-6 w-6" />
+            <ChevronDownIcon className="h-8 w-8" />
           </a>
         </div>
       </section>
