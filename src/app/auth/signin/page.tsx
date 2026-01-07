@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "~/server/auth";
-import { DNAIcon } from "~/components/icons";
 
 export default async function SignInPage() {
   const session = await auth();
@@ -19,7 +18,7 @@ export default async function SignInPage() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded-lg">
-            <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
+            <img src="/logo.png" alt="SNP Analyzer" className="h-8 w-8" />
             <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </Link>
           <Link
@@ -35,7 +34,7 @@ export default async function SignInPage() {
       <div className="flex min-h-screen items-center justify-center px-4 pt-20">
         <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-lg">
           <div className="mb-8 text-center">
-            <DNAIcon className="mx-auto h-12 w-12 text-primary mb-4" />
+            <img src="/logo.png" alt="SNP Analyzer" className="mx-auto h-12 w-12 mb-4" />
             <h1 className="text-3xl font-bold text-text">Iniciar Sesion</h1>
             <p className="mt-2 text-text-light">
               Accede al analisis de variantes geneticas

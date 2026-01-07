@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
-  DNAIcon,
   HomeIcon,
   PlusIcon,
   ClockIcon,
@@ -76,7 +75,7 @@ export function Sidebar({ user }: SidebarProps) {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex items-center gap-2 border-b border-border p-4">
-            <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
+            <img src="/logo.png" alt="SNP Analyzer" className="h-8 w-8" />
             <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </div>
 

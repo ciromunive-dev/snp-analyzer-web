@@ -238,7 +238,7 @@ function StatusMessage({
           <div>
             <p className="font-medium text-blue-400">Analizando secuencia</p>
             <p className="text-sm text-gray-400">
-              Ejecutando BLAST y detectando variantes...
+              Ejecutando BLAT y detectando variantes...
             </p>
           </div>
         </div>

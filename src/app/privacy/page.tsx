@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DNAIcon, ArrowLeftIcon } from "~/components/icons";
+import { ArrowLeftIcon } from "~/components/icons";
 
 export default function PrivacyPage() {
   return (
@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <nav className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
+            <img src="/logo.png" alt="SNP Analyzer" className="h-8 w-8" />
             <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </Link>
         </div>
@@ -88,8 +88,8 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-2">
               <li>Cuando sea requerido por ley.</li>
               <li>
-                Con servicios externos necesarios para el analisis (NCBI BLAST,
-                ClinVar, gnomAD) que solo reciben las secuencias sin
+                Con servicios externos necesarios para el analisis (UCSC BLAT,
+                Ensembl VEP, ClinVar, gnomAD) que solo reciben las secuencias sin
                 informacion identificable.
               </li>
             </ul>

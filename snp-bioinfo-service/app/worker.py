@@ -113,7 +113,7 @@ class Worker:
         Pipeline:
         1. Obtener job de DB
         2. Actualizar estado a PROCESSING
-        3. Ejecutar BLAST
+        3. Ejecutar BLAT
         4. Detectar variantes
         5. Anotar variantes
         6. Guardar resultados
@@ -130,8 +130,8 @@ class Worker:
             await db.update_job_status(job_id, "PROCESSING")
             logger.info("Procesando job", job_id=job_id, sequence_name=job.get("sequenceName"))
 
-            # 3. Ejecutar BLAST
-            logger.info("Ejecutando BLAST...", job_id=job_id)
+            # 3. Ejecutar BLAT
+            logger.info("Ejecutando BLAT...", job_id=job_id)
             sequence = job["sequence"]
             blast_result = await blast_service.align(sequence)
 
@@ -144,7 +144,7 @@ class Worker:
                 )
                 return
 
-            # Guardar resultados de BLAST
+            # Guardar resultados de BLAT
             best_hit = blast_result.best_hit
             await db.update_job_blast_results(
                 job_id,

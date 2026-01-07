@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DNAIcon, ArrowLeftIcon } from "~/components/icons";
+import { ArrowLeftIcon } from "~/components/icons";
 
 export default function TermsPage() {
   return (
@@ -8,7 +8,7 @@ export default function TermsPage() {
       <nav className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
+            <img src="/logo.png" alt="SNP Analyzer" className="h-8 w-8" />
             <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </Link>
         </div>
@@ -48,7 +48,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Subir secuencias de ADN en formato FASTA.</li>
-              <li>Detectar variantes geneticas (SNPs) mediante BLAST.</li>
+              <li>Detectar variantes geneticas (SNPs) mediante BLAT.</li>
               <li>
                 Obtener anotaciones clinicas de bases de datos publicas (ClinVar,
                 gnomAD).

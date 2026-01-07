@@ -31,7 +31,7 @@ export default async function Home() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <Link href="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded-lg">
-            <DNAIcon className="h-8 w-8 text-primary" aria-hidden="true" />
+            <img src="/logo.png" alt="SNP Analyzer" className="h-8 w-8" />
             <span className="text-xl font-bold text-text">SNP Analyzer</span>
           </Link>
           <div className="flex items-center gap-4">
@@ -82,7 +82,7 @@ export default async function Home() {
 
           <p className="mb-8 text-xl text-text-light sm:text-2xl">
             Analiza variantes geneticas en tu ADN de forma rapida y sencilla.
-            Detecta SNPs, alinea con BLAST y obtiene anotaciones clinicas.
+            Detecta SNPs, alinea con BLAT y obtiene anotaciones clinicas.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -138,8 +138,8 @@ export default async function Home() {
             />
             <FeatureCard
               icon={<SearchIcon className="h-8 w-8" />}
-              title="Alineamiento BLAST"
-              description="Alinea tu secuencia contra el genoma humano de referencia GRCh38 usando NCBI BLAST."
+              title="Alineamiento BLAT"
+              description="Alinea tu secuencia contra el genoma humano de referencia GRCh38 usando UCSC BLAT."
             />
             <FeatureCard
               icon={<DNAIcon className="h-8 w-8" />}
@@ -201,7 +201,7 @@ export default async function Home() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-center gap-2">
-              <DNAIcon className="h-6 w-6 text-primary" aria-hidden="true" />
+              <img src="/logo.png" alt="SNP Analyzer" className="h-6 w-6" />
               <span className="font-semibold text-text">SNP Analyzer</span>
             </div>
             <p className="text-sm text-text-lighter">

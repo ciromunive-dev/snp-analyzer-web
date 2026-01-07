@@ -20,9 +20,10 @@ export const metadata: Metadata = {
     "variantes geneticas",
     "ADN",
     "bioinformatica",
-    "BLAST",
+    "BLAT",
     "ClinVar",
     "gnomAD",
+    "Ensembl VEP",
   ],
 };
 

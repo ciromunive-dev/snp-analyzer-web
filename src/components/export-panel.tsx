@@ -52,28 +52,42 @@ export function ExportPanel({
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Title
-    doc.setFontSize(20);
+    // Logo - cargar imagen
+    try {
+      const logoImg = await loadImage("/logo.png");
+      doc.addImage(logoImg, "PNG", 14, 10, 25, 25);
+    } catch {
+      // Si no carga el logo, continuar sin él
+    }
+
+    // Title (ajustado para dejar espacio al logo)
+    doc.setFontSize(18);
     doc.setTextColor(37, 99, 235); // Primary blue
-    doc.text("SNP Analyzer - Reporte de Variantes", pageWidth / 2, 20, {
-      align: "center",
-    });
+    doc.text("SNP Analyzer", 45, 18);
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Reporte de Variantes Geneticas", 45, 26);
+
+    // Línea separadora
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(0.5);
+    doc.line(14, 38, pageWidth - 14, 38);
 
     // Info
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Analisis: ${jobName}`, 14, 35);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 42);
-    doc.text(`ID: ${jobId}`, 14, 49);
+    doc.text(`Analisis: ${jobName}`, 14, 48);
+    doc.text(`Fecha: ${new Date().toLocaleDateString("es-ES")}`, 14, 55);
+    doc.text(`ID: ${jobId}`, 14, 62);
     if (chromosome) {
-      doc.text(`Cromosoma: ${chromosome}`, 14, 56);
+      doc.text(`Cromosoma: ${chromosome}`, pageWidth / 2, 48);
     }
     if (blastIdentity) {
-      doc.text(`Identidad BLAST: ${blastIdentity.toFixed(2)}%`, 14, 63);
+      doc.text(`Identidad BLAT: ${blastIdentity.toFixed(2)}%`, pageWidth / 2, 55);
     }
 
     // Summary
-    const yStart = chromosome ? 75 : 62;
+    const yStart = 75;
     doc.setFontSize(14);
     doc.setTextColor(37, 99, 235);
     doc.text("Resumen", 14, yStart);
@@ -151,6 +165,23 @@ export function ExportPanel({
   };
 
   const exportCSV = () => {
+    // Si no hay variantes, crear archivo con mensaje informativo
+    if (variants.length === 0) {
+      const noVariantsData = [{
+        Mensaje: "No se detectaron variantes en esta secuencia",
+        Analisis: jobName,
+        ID: jobId,
+        Fecha: new Date().toLocaleDateString("es-ES"),
+        Cromosoma: chromosome ?? "N/A",
+        Identidad_BLAT: blastIdentity ? `${blastIdentity.toFixed(2)}%` : "N/A",
+        Resultado: "La secuencia analizada es identica a la referencia o no contiene variantes detectables",
+      }];
+      const csv = Papa.unparse(noVariantsData, { delimiter: ";" });
+      const BOM = "\uFEFF";
+      downloadFile(BOM + csv, `snp-analyzer-${jobId.slice(0, 8)}-sin-variantes.csv`, "text/csv;charset=utf-8");
+      return;
+    }
+
     const data = variants.map((v) => ({
       Cromosoma: v.chromosome,
       Posicion: v.position,
@@ -307,4 +338,26 @@ function formatSignificance(significance: string | null): string {
     unknown: "Desconocido",
   };
   return labels[significance] ?? significance;
+}
+
+// Helper para cargar imagen como base64
+function loadImage(src: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("No canvas context"));
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
 }

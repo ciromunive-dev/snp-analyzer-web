@@ -141,7 +141,7 @@ export default function AnalysisResultsPage({ params }: AnalysisPageProps) {
             icon={<ChromosomeIcon className="h-5 w-5" />}
           />
           <StatCard
-            label="Identidad BLAST"
+            label="Identidad BLAT"
             value={results.blastIdentity ? `${results.blastIdentity.toFixed(1)}%` : "-"}
             icon={<PercentIcon className="h-5 w-5" />}
           />
