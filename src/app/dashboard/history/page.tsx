@@ -1,26 +1,38 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth } from "~/server/auth";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { api } from "~/trpc/react";
 import { Sidebar } from "~/components/ui/sidebar";
-import { DNAIcon, ClockIcon, CheckIcon, ErrorIcon, ArrowRightIcon } from "~/components/icons";
+import { DNAIcon, ClockIcon, CheckIcon, ErrorIcon, ArrowRightIcon, SpinnerIcon } from "~/components/icons";
 
-export default async function HistoryPage() {
-  const session = await auth();
+export default function HistoryPage() {
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
 
-  // Redirect to signin if not authenticated
-  if (!session?.user) {
-    redirect("/auth/signin");
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (authStatus === "unauthenticated") {
+      router.push("/auth/signin");
+    }
+  }, [authStatus, router]);
+
+  // Fetch history from API
+  const { data, isLoading, error } = api.analysis.history.useQuery(
+    { limit: 50 },
+    { enabled: authStatus === "authenticated" }
+  );
+
+  // Show loading while checking auth
+  if (authStatus === "loading" || !session?.user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <SpinnerIcon className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
-
-  // TODO: fetch real history from database
-  const analyses: Array<{
-    id: string;
-    sequenceName: string;
-    status: string;
-    createdAt: Date;
-    completedAt: Date | null;
-    variantCount: number;
-  }> = [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,12 +47,29 @@ export default async function HistoryPage() {
           </p>
         </div>
 
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <SpinnerIcon className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Error state */}
+        {error && (
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-6 text-center">
+            <ErrorIcon className="mx-auto mb-2 h-8 w-8 text-red-500" />
+            <p className="text-red-400">Error al cargar historial: {error.message}</p>
+          </div>
+        )}
+
         {/* Analyses list */}
-        {analyses.length === 0 ? (
+        {!isLoading && !error && data?.jobs.length === 0 && (
           <EmptyState />
-        ) : (
+        )}
+
+        {!isLoading && !error && data && data.jobs.length > 0 && (
           <div className="space-y-4">
-            {analyses.map((analysis: typeof analyses[number]) => (
+            {data.jobs.map((analysis) => (
               <AnalysisCard key={analysis.id} analysis={analysis} />
             ))}
           </div>
