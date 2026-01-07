@@ -11,7 +11,10 @@ export const metadata: Metadata = {
   title: "SNP Analyzer - Analiza variantes geneticas en tu ADN",
   description:
     "Aplicacion web para analisis de variantes geneticas (SNPs) en ADN humano. Detecta y anota funcionalmente variantes con informacion clinica.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", url: "/logo.ico" },
+    { rel: "apple-touch-icon", url: "/logo.png" },
+  ],
   keywords: [
     "SNP",
     "variantes geneticas",
